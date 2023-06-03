@@ -14,6 +14,7 @@ public enum SmartContractError: Error {
     case invalidFunctionName(String)
     case invalidSignature
     
+    case invalidAddress
     case wrongValue(Any, ABIRawType)
     case unsupportedType(ABIRawType)
     case invalidInputsCount(Int)
