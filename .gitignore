@@ -1,9 +1,25 @@
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
 .DS_Store
-/.build
-/Packages
-/*.xcodeproj
-xcuserdata/
+
+## Build generated
+build/
 DerivedData/
-.swiftpm/config/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
-.netrc
+
+## User data
+xcuserdata/
+xcuserdata
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Swift Packages
+Packages
+xcuserdata
+.swiftpm/
+
+## xcframeworks Package
+*.xcframework/
