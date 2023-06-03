@@ -43,20 +43,34 @@ public struct ERC20Contract: SmartContract {
         try await runFunction("totalSupply")
     }
     
-    public func transferFrom(from: EthereumAddress, to: EthereumAddress, value: BigUInt) async throws -> Bool {
-        try await runFunction("transferFrom", params: from, to, value)
+    @discardableResult
+    public func transferFrom(from: String, to: String, value: BigUInt) async throws -> Bool {
+        guard let from = EthereumAddress(from), let to = EthereumAddress(to) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("transferFrom", params: from, to, value)
     }
     
-    public func balanceOf(address: EthereumAddress) async throws -> BigUInt {
-        try await runFunction("balanceOf", params: address)
+    public func balanceOf(address: String) async throws -> BigUInt {
+        guard let address = EthereumAddress(address) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("balanceOf", params: address)
     }
     
-    public func transfer(to: EthereumAddress, value: BigUInt) async throws -> Bool {
-        try await runFunction("transfer", params: to, value)
+    @discardableResult
+    public func transfer(to: String, value: BigUInt) async throws -> Bool {
+        guard let to = EthereumAddress(to) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("transfer", params: to, value)
     }
     
-    public func allowance(owner: EthereumAddress, spender: EthereumAddress) async throws -> BigUInt {
-        try await runFunction("allowance", params: owner, spender)
+    public func allowance(owner: String, spender: String) async throws -> BigUInt {
+        guard let owner = EthereumAddress(owner), let spender = EthereumAddress(spender) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("allowance", params: owner, spender)
     }
     
 }

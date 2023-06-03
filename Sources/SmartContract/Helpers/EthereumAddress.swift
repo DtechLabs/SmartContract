@@ -11,7 +11,8 @@ public struct EthereumAddress {
     
     private let _address: String
     public var type: AddressType = .normal
-
+    public static let zero = EthereumAddress("0x0000000000000000000000000000000000000000")
+    
     var abiData: Data? {
         let address = padAddress()
         guard let data = Data(hex: address.web3.noHexPrefix) else {
@@ -136,7 +137,22 @@ public extension EthereumAddress {
     }
 }
 
-extension EthereumAddress: Equatable {
+extension EthereumAddress: Codable, Hashable {
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self._address = try container.decode(String.self).lowercased()
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self._address)
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self._address)
+    }
+    
     public static func ==(lhs: EthereumAddress, rhs: EthereumAddress) -> Bool {
         return lhs.addressData == rhs.addressData && lhs.type == rhs.type
     }
