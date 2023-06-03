@@ -13,12 +13,12 @@ public struct ERC20Contract: SmartContract {
     var rpc: RpcApi?
     var address: String?
     
-    init() {
+    public init() {
         self.rpc = nil
         self.address = nil
     }
     
-    init(rcp: RpcApi, address: String) {
+    public init(rcp: RpcApi, address: String) {
         self.rpc = rcp
         self.address = address
     }
