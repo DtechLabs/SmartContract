@@ -13,6 +13,16 @@ public struct MulticallContract: SmartContract {
     var address: String?
     let contract = GenericSmartContract.Multicall
     
+    public init() {
+        self.rpc = nil
+        self.address = nil
+    }
+    
+    public init(rcp: RpcApi, address: String) {
+        self.rpc = rcp
+        self.address = address
+    }
+    
     public struct Call: ABIEncodable {
         public let address: EthereumAddress
         public let bytes: Data
@@ -25,10 +35,15 @@ public struct MulticallContract: SmartContract {
         }
     }
     
-    public func aggregateAbi(_ calls: [Call]) throws -> String {
+    public func aggregate(_ calls: [Call]) async throws -> String {
+        let result = try await call(aggregateAbi(calls).hexString)
+        return result
+    }
+    
+    public func aggregateAbi(_ calls: [Call]) throws -> Data {
         var data = try contract.function("aggregate").signatureData()
         data += try ABIEncoder.encodeDynamic(arrayOf: .tuple(types: [.address, .dynamicBytes]), values: calls)
-        return data.hexString
+        return data
     }
     
 }
