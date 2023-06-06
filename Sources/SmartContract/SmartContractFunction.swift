@@ -10,31 +10,39 @@ import BigInt
 public struct SmartContractFunction {
     
     let abi: ABIFunction
-    var params: [Any] = []
     
     public var name: String { abi.name }
     public var inputs: [ABIFunction.Input] { abi.inputs }
     public var outputs: [ABIFunction.Output] { abi.outputs }
     
-    public  init(abi: ABIFunction, params: Any...) {
+    public  init(abi: ABIFunction) {
         self.abi = abi
-        self.params = params
     }
     
-    public func encode() throws -> String {
-        try signature()
+    public func encode() throws -> Data {
+        try signatureData()
     }
     
-    public func encode(_ params: Any...) throws -> String {
-        let signature = try signature()
-        let data = try encodeParams(params)
-            .map { $0.toHexString()}
-            .joined()
-        return signature + data
+    public func encode(_ params: Any...) throws -> Data {
+        var buffer = try signatureData()
+        for data in try encodeParams(params) {
+            buffer += data
+        }
+        return buffer
     }
     
     public var methodName: String {
-        let typeNames = inputs.map { $0.type.description }
+        let typeNames = inputs.map {
+            if case .tuple = $0.type {
+                guard let internalTypes = $0.components?.map({ $0.type }) else {
+                    assertionFailure("Should be structure definition")
+                    return ""
+                }
+                return "(" + internalTypes.map { $0.description }.joined(separator: ",") + ")[]"
+            } else {
+                return $0.type.description
+            }
+        }
         return name + "(" + typeNames.joined(separator: ",") + ")"
     }
     
@@ -45,7 +53,7 @@ public struct SmartContractFunction {
         return data.web3.keccak256.prefix(4).web3.hexString
     }
     
-    private func signatureData() throws -> Data {
+    func signatureData() throws -> Data {
         guard let data = methodName.data(using: .utf8) else {
             throw SmartContractError.invalidSignature
         }

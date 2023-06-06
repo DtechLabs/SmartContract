@@ -22,6 +22,8 @@ public enum SmartContractError: Error {
     case invalidData(String)
     case typeMismatch
     case contractOrRpcDidNotSet
+    
+    case invalidBytesSize(Int)
 }
 
 func == (lhs: Error, rhs: Error) -> Bool {

@@ -39,7 +39,11 @@ public extension Web3Extensions where Base == Int {
 
 public extension Data {
     init?(hex: String) {
-        if let byteArray = try? HexUtil.byteArray(fromHex: hex.web3.noHexPrefix) {
+        var raw = hex.web3.noHexPrefix
+        if raw.count % 2 > 0 {
+           raw = "0" + raw
+        }
+        if let byteArray = try? HexUtil.byteArray(fromHex: raw) {
             self.init(bytes: byteArray, count: byteArray.count)
         } else {
             return nil

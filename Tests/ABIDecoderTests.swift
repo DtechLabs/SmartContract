@@ -37,19 +37,19 @@ final class ABIDecoderTests: XCTestCase {
         XCTAssertEqual(UInt64(stringData.count), decodedString.bytesConsumed)
         
         let bytesData = Data(hex: "3132333435363738393000000000000000000000000000000000000000000000")!
-        let original = try ABIDecoder.decodeSingleType(type: .bytes(bits: 10), data: bytesData)
+        let original = try ABIDecoder.decodeSingleType(type: .bytes(count: 10), data: bytesData)
         XCTAssertEqual("0x31323334353637383930", (original.value as? Data)?.web3.hexString)
     }
     
     func testValueDecoderArrayUInt8() throws {
         let input = Data(hex: "0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000003100000000000000000000000000000000000000000000000000000000000000320000000000000000000000000000000000000000000000000000000000000033")!
-        let array = try ABIDecoder.decodeSingleType(type: .array(type: .uint8), data: input)
+        let array = try ABIDecoder.decodeSingleType(type: .dynamicArray(ofType: .uint8), data: input)
         XCTAssertEqual([49,50,51], array.value as? [BigUInt])
     }
 
     func testValueDecoderArrayAddress() throws {
         let input = Data(hex: "0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f784682c82526e245f50975190ef0fff4e4fc0770000000000000000000000002e00cd222cb42b616d86d037cc494e8ab7f5c9a3")!
-        let array = try ABIDecoder.decodeSingleType(type: .array(type: .address), data: input)
+        let array = try ABIDecoder.decodeSingleType(type: .dynamicArray(ofType: .address), data: input)
         let sample = [
             EthereumAddress("0xf784682c82526e245f50975190ef0fff4e4fc077")!,
             EthereumAddress("0x2e00cd222cb42b616d86d037cc494e8ab7f5c9a3")!,
@@ -60,7 +60,7 @@ final class ABIDecoderTests: XCTestCase {
     func testValueDecoderArrayBytes() throws {
         let input = Data(hex: "0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000002101100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000031022220000000000000000000000000000000000000000000000000000000000")!
         let sample = [Data(hex: "0x1011")!, Data(hex: "0x102222")!]
-        let array = try ABIDecoder.decodeSingleType(type: .array(type: .bytes(bits: 0)), data: input)
+        let array = try ABIDecoder.decodeSingleType(type: .dynamicArray(ofType: .dynamicBytes), data: input)
         XCTAssertEqual(sample, array.value as? [Data])
     }
 

@@ -62,8 +62,8 @@ public struct ABIValue {
                 return try array(type: .string, elementType: String.self)
             case .bool:
                 return try array(type: .bool, elementType: BigUInt.self)
-            case .bytes(let bits):
-                return try array(type: .bytes(bits: bits), elementType: Data.self)
+            case .bytes(let count):
+                return try array(type: .bytes(count: count), elementType: Data.self)
             default:
                 throw SmartContractError.typeMismatch
         }

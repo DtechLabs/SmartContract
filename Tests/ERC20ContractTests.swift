@@ -44,9 +44,6 @@ class ERC20ContractTests: XCTestCase {
         let symbol = try await contract.symbols()
         XCTAssertEqual(symbol, "WETH")
     }
-    
-    func testMulticall() async throws {
-        let rpc = RPC(url: rpc)
-    }
+
 }
 
