@@ -20,7 +20,7 @@ extension SmartContract {
     func runFunction<T>(_ functionName: String) async throws -> T {
         let function = try contract.function(functionName)
         let abi = try function.encode()
-        let data = try await call(abi)
+        let data = try await call(abi.hexString)
         
         guard let value = try function.decode(data)[0].value as? T else {
             throw SmartContractError.invalidData(data)
@@ -31,7 +31,7 @@ extension SmartContract {
     func runFunction<T>(_ functionName: String, params: Any...) async throws -> T {
         let function = try contract.function(functionName)
         let abi = try function.encode(params)
-        let data = try await call(abi)
+        let data = try await call(abi.hexString)
         
         guard let value = try function.decode(data)[0].value as? T else {
             throw SmartContractError.invalidData(data)
@@ -46,12 +46,12 @@ extension SmartContract {
         return try await rpc.call(to: address, data: abi)
     }
     
-    public func abi(_ functionName: String) throws -> String {
+    public func abi(_ functionName: String) throws -> Data {
         try contract.function(functionName).encode()
     }
     
     public func abi(_ functionName: String, params: Any...) throws -> String {
-        try contract.function(functionName).encode(params)
+        try contract.function(functionName).encode(params).hexString
     }
     
     public func decode<T>(_ functionName: String, data: String) throws -> T {

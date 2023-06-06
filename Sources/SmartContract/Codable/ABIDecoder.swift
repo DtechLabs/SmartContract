@@ -48,7 +48,9 @@ enum ABIDecoder {
             case .address:
                 guard elementItself.count >= 32 else {break}
                 let dataSlice = elementItself[startIndex + 12 ..< startIndex + 32]
-                let address = EthereumAddress(dataSlice)
+                guard let address = EthereumAddress(dataSlice) else {
+                    throw SmartContractError.invalidAddress
+                }
                 return (address, type.memoryUsage)
             case .bool:
                 guard elementItself.count >= 32 else {break}
@@ -80,7 +82,7 @@ enum ABIDecoder {
                     guard elementItself.count >= 32 else {
                         break
                     }
-                    let dataSlice = elementItself[startIndex ..< startIndex + length]
+                    let dataSlice = elementItself[startIndex ..< startIndex + UInt64(length)]
                     return (Data(dataSlice), type.memoryUsage)
                 }
             case .string:
