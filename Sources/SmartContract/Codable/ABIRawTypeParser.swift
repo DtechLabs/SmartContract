@@ -65,13 +65,13 @@ enum ABIRawTypeParser {
         }
     }
     
-    static func parseArray(_ rawValue: String) -> (String, UInt64)? {
+    static func parseArray(_ rawValue: String) -> (String, UInt)? {
         let regex = try! NSRegularExpression(pattern: "\\[(\\d*)\\]$", options: [])
         
         if let match = regex.firstMatch(in: rawValue, options: [], range: NSRange(rawValue.startIndex..., in: rawValue)),
            let range = Range(match.range(at: 1), in: rawValue) {
             let rawDigits = String(rawValue[range])
-            let length = UInt64(rawDigits) ?? 0
+            let length = UInt(rawDigits) ?? 0
             return (String(rawValue.dropLast(2 + rawDigits.count)), length)
         } else {
             return nil
