@@ -5,6 +5,11 @@
 //  Created by Yuri on 31.05.2023.
 //
 import Foundation
+import BigInt
+
+/// The EVM operates on 256-bit words, which is equivalent to 32 bytes.
+/// It was built this way in order to handle large numbers efficiently, which is often required in cryptographic computations.
+public let EVMWordSize: UInt = 32
 
 public enum ABIRawType: Codable, Equatable {
     /// An unsigned integer between 8 and 256 bits long, padded left to 32 bytes while encoding.
@@ -24,11 +29,11 @@ public enum ABIRawType: Codable, Equatable {
     /// structure that should be defined in *component* field on **inputs**
     indirect case tuple(types: [ABIRawType])
     ///
-    indirect case array(type: ABIRawType, length: UInt64)
+    indirect case array(type: ABIRawType, length: UInt)
     indirect case dynamicArray(ofType: ABIRawType)
     
     public enum ArraySize { // bytes for convenience
-        case staticSize(UInt64)
+        case staticSize(UInt)
         case dynamicSize
         case notArray
     }
@@ -66,22 +71,16 @@ public enum ABIRawType: Codable, Equatable {
         }
     }
     
-    var isStatic: Bool {
+    var isFixedSize: Bool {
         switch self {
             case .string: return false
-            case .bytes(let bits): return true
+            case .bytes: return true
             case .dynamicBytes: return false
-            case .array(type: let type, length: let length):
-                if length == 0 {
-                    return false
-                }
-                if !type.isStatic {
-                    return false
-                }
-                return true
+            case .array(type: let type, _), .dynamicArray(let type):
+                return type.isFixedSize
             case .tuple(let types):
                 for t in types {
-                    if !t.isStatic {
+                    if !t.isFixedSize {
                         return false
                     }
                 }
@@ -91,21 +90,27 @@ public enum ABIRawType: Codable, Equatable {
         }
     }
     
-    var memoryUsage: UInt64 {
+    var isArray: Bool {
+        switch self {
+            case .dynamicArray, .array: return true
+            default: return false
+        }
+    }
+    
+    var memoryUsage: UInt {
         switch self {
         case .array(_, let length):
-            if length == 0 {
+                if self.isFixedSize {
+                    return 32 * length
+                }
                 return 32
-            }
-            if self.isStatic {
-                return 32 * length
-            }
-            return 32
+            case .dynamicArray:
+                return 32
         case .tuple(let types):
-            if !self.isStatic {
+            if !self.isFixedSize {
                 return 32
             }
-            var sum: UInt64 = 0
+            var sum: UInt = 0
             for t in types {
                 sum = sum + t.memoryUsage
             }
@@ -114,13 +119,27 @@ public enum ABIRawType: Codable, Equatable {
             return 32
         }
     }
-
-    var isArray: Bool {
+    
+    var decodableType: ABIDecodable.Type? {
         switch self {
-        case .array(type: _, length: _):
-            return true
+            case .uint: return BigUInt.self
+            case .int: return BigInt.self
+            case .bool: return Bool.self
+            case .address: return EthereumAddress.self
+            case .string: return String.self
+            case .bytes, .dynamicBytes: return Data.self
+            default:
+                return nil
+        }
+    }
+    
+    /// Type of Element in Array
+    var innerType: ABIRawType? {
+        switch self {
+        case .array(let type, _), .dynamicArray(let type):
+            return type
         default:
-            return false
+            return nil
         }
     }
 

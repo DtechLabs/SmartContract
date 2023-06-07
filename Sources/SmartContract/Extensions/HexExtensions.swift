@@ -31,6 +31,12 @@ public extension Int {
     }
 }
 
+public extension UInt {
+    init?(hex: String) {
+        self.init(hex.web3.noHexPrefix, radix: 16)
+    }
+}
+
 public extension Web3Extensions where Base == Int {
     var hexString: String {
         return "0x" + String(format: "%x", base)

@@ -19,7 +19,7 @@ public enum ABIEncoder {
         for (rawType, value) in values {
             let elementHeadRange = headOffset..<(headOffset + 32)
             let encodedElement = try value.encode(as: rawType)
-            if rawType.isStatic {
+            if rawType.isFixedSize {
                 guard encodedElement.count == 32 else {
                     throw ABIEncoderError.tupleEncodingError
                 }
@@ -37,7 +37,7 @@ public enum ABIEncoder {
     }
     
     static func encodeDynamic(arrayOf type: ABIRawType, values: [ABIEncodable]) throws -> Data {
-        guard !type.isStatic else {
+        guard !type.isFixedSize else {
             throw ABIEncoderError.shouldByDynamic
         }
         var head = Data(repeating: 0x0, count: 32 * values.count)
