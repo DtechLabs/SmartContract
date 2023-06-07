@@ -29,15 +29,12 @@ enum ABIDecoder {
     static func decodeDynamicTypeArray<T: ABIDecodable>(arrayOf type: ABIRawType, elementsCount: UInt, data: Data, offset: inout UInt) throws -> [T] {
         // First we are read head of array
         let headPointer = offset
-        guard data.count > headPointer + EVMWordSize * elementsCount else {
-            throw ABIDecoderError.missedDataOrCorrupt
-        }
         var array: [T] = []
         // Fill head
-        let pointers = try (1...elementsCount).map { _ in try BigUInt.decode(as: .uint256, from: data, offset: &offset) }
+        let pointers = try pointers(count: elementsCount, data: data, offset: &offset)
         // Next read elements
         for pointer in pointers {
-            let elementOffset = headPointer + UInt(pointer)
+            let elementOffset = headPointer + pointer
             guard offset == elementOffset else {
                 throw ABIDecoderError.missedDataOrCorrupt
             }
@@ -63,14 +60,92 @@ enum ABIDecoder {
         return array
     }
     
-    public func decodeFixedSizeValue<T: ABIDecodable>(ofType type: ABIRawType, data: Data, offset: inout UInt) throws -> T {
-        guard type.isFixedSize else {
-            throw ABIDecoderError.shouldBeFixedSize
+    static func pointers(count: UInt, data: Data, offset: inout UInt) throws -> [UInt] {
+        guard data.count > offset + EVMWordSize * count else {
+            throw ABIDecoderError.missedDataOrCorrupt
         }
-        let value = try T.decode(as: type, from: data, offset: &offset)
-        return value
+        let pointers = try (1...count).map { _ in try BigUInt.decode(as: .uint256, from: data, offset: &offset) }
+        return pointers.map { UInt($0) }
+    }
+    
+    public static func decodeDynamicOutput(types: [ABIRawType], data: Data) throws -> [ABIDecodable] {
+        var offset: UInt = 0
+        var values: [ABIDecodable] = []
+        let headPointer = offset
+        var pointers: [UInt] = []
+        // if type is static without pointer put value
+        for type in types {
+            if type.isFixedSize {
+                guard let baseType = type.decodableType else {
+                    throw ABIDecoderError.unknownCase
+                }
+                let element = try baseType.decode(as: type, from: data, offset: &offset)
+                pointers.append(0)
+                values.append(element)
+            } else {
+                let pointer = try BigUInt.decode(as: .uint256, from: data, offset: &offset)
+                pointers.append(UInt(pointer))
+            }
+        }
+        
+        for (index, type) in types.enumerated() {
+            guard !type.isFixedSize else {
+                continue
+            }
+            let elementOffset = headPointer + pointers[index]
+            guard offset == elementOffset else {
+                throw ABIDecoderError.missedDataOrCorrupt
+            }
+            if type.isArray {
+                guard let innerType = type.innerType, let elementType = innerType.decodableType else {
+                    throw ABIDecoderError.unknownCase
+                }
+                switch elementType {
+                    case is BigUInt.Type:
+                        let element: [BigUInt] = try ABIDecoder.decodeArray(arrayOf: type, data: data, offset: &offset)
+                        values.append(element)
+                    case is BigInt.Type:
+                        let element: [BigInt] = try ABIDecoder.decodeArray(arrayOf: type, data: data, offset: &offset)
+                        values.append(element)
+                    case is EthereumAddress.Type:
+                        let element: [EthereumAddress] = try ABIDecoder.decodeArray(arrayOf: type, data: data, offset: &offset)
+                        values.append(element)
+                    case is String.Type:
+                        let element: [String] = try ABIDecoder.decodeArray(arrayOf: type, data: data, offset: &offset)
+                        values.append(element)
+                    case is Data.Type:
+                        let element: [Data] = try ABIDecoder.decodeArray(arrayOf: type, data: data, offset: &offset)
+                        values.append(element)
+                    default:
+                        throw ABIDecoderError.unknownCase
+                }
+                
+                
+            } else {
+                 guard let baseType = type.decodableType else {
+                    throw ABIDecoderError.missedDataOrCorrupt
+                }
+                let element = try baseType.decode(as: type, from: data, offset: &offset)
+                values.append(element)
+            }
+        }
+        return values
+    }
+    
+    public static func decodeOutput(types: [ABIRawType], data: Data) throws -> [ABIDecodable] {
+        var offset: UInt = 0
+        var values: [ABIDecodable] = []
+        for type in types {
+            guard let baseType = type.decodableType else {
+                throw ABIDecoderError.missedDataOrCorrupt
+            }
+            let value = try baseType.decode(as: type, from: data, offset: &offset)
+            values.append(value)
+        }
+        return values
     }
         
+    // MARK: Old version
     public static func decode(types: [ABIRawType], data: Data) throws -> [ABIValue] {
         var toReturn = [ABIValue]()
         var consumed: UInt = 0

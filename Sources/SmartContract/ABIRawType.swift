@@ -5,6 +5,7 @@
 //  Created by Yuri on 31.05.2023.
 //
 import Foundation
+import BigInt
 
 /// The EVM operates on 256-bit words, which is equivalent to 32 bytes.
 /// It was built this way in order to handle large numbers efficiently, which is often required in cryptographic computations.
@@ -75,7 +76,7 @@ public enum ABIRawType: Codable, Equatable {
             case .string: return false
             case .bytes: return true
             case .dynamicBytes: return false
-            case .array(type: let type, _):
+            case .array(type: let type, _), .dynamicArray(let type):
                 return type.isFixedSize
             case .tuple(let types):
                 for t in types {
@@ -119,20 +120,18 @@ public enum ABIRawType: Codable, Equatable {
         }
     }
     
-
-    
-//    /// Size in bytes of the value of  each type
-//    /// If type is dynamic return nil
-//    var sizeInBytes: UInt? {
-//        switch self {
-//            case .uint, .int, .bool, .address:
-//                return 32
-//            case .array(let type, let length):
-//                return type.isFixedSize ? 32 * length : nil
-//            default:
-//                return nil
-//        }
-//    }
+    var decodableType: ABIDecodable.Type? {
+        switch self {
+            case .uint: return BigUInt.self
+            case .int: return BigInt.self
+            case .bool: return Bool.self
+            case .address: return EthereumAddress.self
+            case .string: return String.self
+            case .bytes, .dynamicBytes: return Data.self
+            default:
+                return nil
+        }
+    }
     
     /// Type of Element in Array
     var innerType: ABIRawType? {

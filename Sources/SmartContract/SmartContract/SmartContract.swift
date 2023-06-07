@@ -22,7 +22,7 @@ extension SmartContract {
         let abi = try function.encode()
         let data = try await call(abi.hexString)
         
-        guard let value = try function.decode(data)[0].value as? T else {
+        guard let value = try function.decodeOutput(data)[0] as? T else {
             throw SmartContractError.invalidData(data)
         }
         return value
@@ -33,7 +33,7 @@ extension SmartContract {
         let abi = try function.encode(params)
         let data = try await call(abi.hexString)
         
-        guard let value = try function.decode(data)[0].value as? T else {
+        guard let value = try function.decodeOutput(data)[0] as? T else {
             throw SmartContractError.invalidData(data)
         }
         return value
@@ -55,7 +55,7 @@ extension SmartContract {
     }
     
     public func decode<T>(_ functionName: String, data: String) throws -> T {
-        guard let value = try contract.function(functionName).decode(data)[0].value as? T else {
+        guard let value = try contract.function(functionName).decodeOutput(data)[0] as? T else {
             throw SmartContractError.invalidData(data)
         }
         return value

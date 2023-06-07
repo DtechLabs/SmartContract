@@ -123,6 +123,15 @@ public struct SmartContractFunction {
             }
         }
     }
+    
+    public func decodeOutput(_ rawAnswer: String) throws -> [ABIDecodable] {
+        guard let data = Data(hex: rawAnswer) else {
+            throw SmartContractError.invalidData(rawAnswer)
+        }
+        let types = outputs.map { $0.type }
+        let isDynamic = !types.filter { !$0.isFixedSize }.isEmpty
+        return try isDynamic ? ABIDecoder.decodeDynamicOutput(types: types, data: data) : ABIDecoder.decodeOutput(types: types, data: data)
+    }
 
     public func decode(_ rawAnswer: String) throws -> [ABIValue] {
         guard let data = Data(hex: rawAnswer) else {

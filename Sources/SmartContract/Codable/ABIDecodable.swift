@@ -13,6 +13,7 @@ public enum ABIDecoderError: Error {
     case wrongValue
     case unsupportedType(ABIRawType)
     case shouldBeFixedSize
+    case unknownCase
     
 }
 
@@ -83,20 +84,22 @@ extension Bool: ABIDecodable {
 extension String: ABIDecodable {
     
     public static func decode(as rawType: ABIRawType = .string, from data: Data, offset: inout UInt) throws -> String {
-        guard data.count > EVMWordSize + offset, let length = UInt(hex: data.prefix(Int(EVMWordSize + offset)).hexString) else {
+        guard data.count > EVMWordSize + offset else {
             throw ABIDecoderError.missedDataOrCorrupt
         }
         
-        guard data.count >= offset + EVMWordSize + length else {
+        let length = UInt(try BigUInt.decode(as: .uint256, from: data, offset: &offset))
+        
+        guard data.count >= offset + length else {
             throw ABIDecoderError.missedDataOrCorrupt
         }
         
-        let data = data.dropFirst(Int(EVMWordSize)).prefix(Int(length))
+        let data = data[offset ..< offset + length]
         
         guard let value = String(data: data, encoding: .utf8) else {
             throw ABIDecoderError.wrongValue
         }
-        offset += EVMWordSize + setLengthPadding(length)
+        offset += setLengthPadding(length)
         return value
     }
     
@@ -137,7 +140,7 @@ extension Data: ABIDecodable {
                     throw ABIDecoderError.missedDataOrCorrupt
                 }
                 let size = UInt(try BigUInt.decode(as: .uint256, from: data, offset: &offset))
-                guard data.count > offset + size else {
+                guard data.count >= offset + size else {
                     throw ABIDecoderError.missedDataOrCorrupt
                 }
                 let newData = data[offset ..< offset + size]
@@ -160,6 +163,14 @@ extension Data: ABIDecodable {
             default:
                 throw ABIEncoderError.typeMismatch(self, type)
         }
+    }
+    
+}
+
+extension Array: ABIDecodable where Element: ABIDecodable {
+    
+    public static func decode(as rawType: ABIRawType = .address, from data: Data, offset: inout UInt) throws -> [Element] {
+        try ABIDecoder.decodeArray(arrayOf: rawType, data: data, offset: &offset)
     }
     
 }
