@@ -26,6 +26,8 @@ public struct MulticallContract: SmartContract {
     public struct Call: ABIEncodable {
         public let address: EthereumAddress
         public let bytes: Data
+        public var output: [ABIRawType] = []
+        public var result: [ABIDecodable] = []
         
         public func encode(as type: ABIRawType) throws -> Data {
             guard case .tuple = type else {
@@ -35,9 +37,18 @@ public struct MulticallContract: SmartContract {
         }
     }
     
-    public func aggregate(_ calls: [Call]) async throws -> String {
-        let result = try await call(aggregateAbi(calls).hexString)
-        return result
+    @discardableResult
+    public func aggregate(_ calls: inout [Call]) async throws -> (BigUInt, [Data]) {
+        let answer = try await call(aggregateAbi(calls).hexString)
+        let values = try MulticallContract().contract.function("aggregate").decodeOutput(answer)
+        let bytesArray = values[1] as! [Data]
+        guard bytesArray.count == calls.count else {
+            throw SmartContractError.invalidData(answer)
+        }
+        for index in calls.indices {
+            calls[index].result = try ABIDecoder.decodeDynamicOutput(types: calls[index].output, data: bytesArray[index])
+        }
+        return (values[0] as! BigUInt, bytesArray)
     }
     
     public func aggregateAbi(_ calls: [Call]) throws -> Data {

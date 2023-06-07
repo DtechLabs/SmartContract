@@ -42,8 +42,8 @@ public extension ABIDecodable {
 extension BigUInt: ABIDecodable {
     
     public static func decode(as rawType: ABIRawType, from data: Data, offset: inout UInt) throws -> BigUInt {
-        let data = data[offset..<offset+EVMWordSize]
-        guard let value = BigUInt(hex: data.hexString) else {
+        // Convert data to new structure to avoid BAD access
+        guard let value = BigUInt(hex: Data(data[offset ..< offset + EVMWordSize]).hexString) else {
             throw ABIDecoderError.wrongValue
         }
         offset += EVMWordSize
@@ -56,7 +56,7 @@ extension BigUInt: ABIDecodable {
 extension BigInt: ABIDecodable {
     
     public static func decode(as rawType: ABIRawType = .int(bits: 256), from data: Data, offset: inout UInt) throws -> BigInt {
-        let data = data[offset..<offset+EVMWordSize]
+        let data = Data(data[offset ..< offset + EVMWordSize])
         guard let value = BigInt(hex: data.hexString) else {
             throw ABIDecoderError.wrongValue
         }
@@ -94,7 +94,7 @@ extension String: ABIDecodable {
             throw ABIDecoderError.missedDataOrCorrupt
         }
         
-        let data = data[offset ..< offset + length]
+        let data = Data(data[offset ..< offset + length])
         
         guard let value = String(data: data, encoding: .utf8) else {
             throw ABIDecoderError.wrongValue
@@ -132,7 +132,7 @@ extension Data: ABIDecodable {
                 guard data.count >= offset + UInt(size) else {
                     throw ABIDecoderError.missedDataOrCorrupt
                 }
-                let value = data[offset ..< offset + UInt(size)]
+                let value = Data(data[offset ..< offset + UInt(size)])
                 offset += setLengthPadding(UInt(size))
                 return value
             case .dynamicBytes:
@@ -143,7 +143,7 @@ extension Data: ABIDecodable {
                 guard data.count >= offset + size else {
                     throw ABIDecoderError.missedDataOrCorrupt
                 }
-                let newData = data[offset ..< offset + size]
+                let newData = Data(data[offset ..< offset + size])
                 offset += setLengthPadding(size)
                 return newData
             default:

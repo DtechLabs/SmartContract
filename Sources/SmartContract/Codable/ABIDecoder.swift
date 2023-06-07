@@ -83,6 +83,9 @@ enum ABIDecoder {
                 pointers.append(0)
                 values.append(element)
             } else {
+                guard data.count >= offset + EVMWordSize else {
+                    throw ABIDecoderError.missedDataOrCorrupt
+                }
                 let pointer = try BigUInt.decode(as: .uint256, from: data, offset: &offset)
                 pointers.append(UInt(pointer))
             }

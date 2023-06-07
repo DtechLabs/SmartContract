@@ -50,23 +50,24 @@ final class MulticallTests: XCTestCase {
         
         let values = try MulticallContract().contract.function("aggregate").decodeOutput(answer)
         XCTAssertEqual(values.count, 2)
+        let raw = (values[1] as! [Data])[0]
+        let name = try ABIDecoder.decodeDynamicOutput(types: [.string], data: raw)
+        XCTAssertEqual(name[0] as! String, "Wrapped Ether")
     }
     
     func testCall() async throws {
         let rpc = RPC(url: url)
         let contract = MulticallContract(rcp: rpc, address: address)
         let erc20 = ERC20Contract()
-        let calls: [MulticallContract.Call] = [
-            .init(address: wrappedETH, bytes: try erc20.abi("name")),
-            .init(address: wrappedETH, bytes: try erc20.abi("symbol"))
+        var calls: [MulticallContract.Call] = [
+            .init(address: wrappedETH, bytes: try erc20.abi("name"), output: [.string]),
+            .init(address: wrappedETH, bytes: try erc20.abi("symbol"), output: [.string])
         ]
         
-        let result = try await contract.aggregate(calls)
+        let result = try await contract.aggregate(&calls)
         
-        let answer = "000000000000000000000000000000000000000000000000000000000109d0b200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000d57726170706564204574686572000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000045745544800000000000000000000000000000000000000000000000000000000"
-        
-        // Block number will be different each time so we need drop it
-        XCTAssertEqual(result.dropFirst(66), answer.dropFirst(64))
+        XCTAssertEqual(calls[0].result[0] as! String, "Wrapped Ether")
+        XCTAssertEqual(calls[1].result[0] as! String, "WETH")
     }
     
 }
