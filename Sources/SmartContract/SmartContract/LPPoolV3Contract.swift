@@ -4,35 +4,51 @@
 //
 //  Created by Yuri on 02.06.2023.
 //
-
 import Foundation
+import BigInt
 
-public enum LPPoolV3Contract {
+public struct LPPoolV3Contract: SmartContract {
     
-    private static let contract = GenericSmartContract.LPPoolV3
+    let contract = GenericSmartContract.LPPoolV3
+    var rpc: RpcApi?
+    var address: String?
+    
+    public init() {
+        self.rpc = nil
+        self.address = nil
+    }
+    
+    public init(rcp: RpcApi, address: String) {
+        self.rpc = rcp
+        self.address = address
+    }
     
     /// The first of the two tokens of the pool, sorted by address
     /// - Returns: The token0 contract address **EthereumAddress**
-    public static func token0() throws -> String {
-        try contract.function("token0").encode().hexString
+    public func token0() async throws -> String {
+        try await runFunction("token0")
     }
     
     /// The second of the two tokens of the pool, sorted by address
     /// - Returns: The token1 contract address **EthereumAddress**
-    public static func token1() throws -> String {
-        try contract.function("token1").encode().hexString
+    public func token1() async throws -> String {
+        try await runFunction("token1")
     }
     
     /// The pool's fee in hundredths of a bip, i.e. 1e-6
     /// - Returns: The fee **BigUInt**
-    public static func fee() throws -> String {
-        try contract.function("fee").encode().hexString
+    public func fee() async throws -> BigUInt {
+        try await runFunction("fee")
     }
     
     /// The contract that deployed the pool, which must adhere to the IUniswapV3Factory
     /// - Returns: The contract address **EthereumAddress**
-    public static func factory() throws -> String {
-        try contract.function("factory").encode().hexString
+    public func factory() async throws -> EthereumAddress {
+        try await runFunction("factory")
+    }
+    
+    public func liquidity() async throws -> BigUInt {
+        try await runFunction("liquidity")
     }
     
 }
