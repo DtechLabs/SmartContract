@@ -17,25 +17,31 @@ public protocol SmartContract {
 }
 
 extension SmartContract {
-
-    func runFunction<T>(_ functionName: String) async throws -> T {
+    
+    public func runFunction(name functionName: String) async throws -> [ABIDecodable] {
         let function = try contract.function(functionName)
         let abi = try function.encode()
         let data = try await call(abi.hexString)
-        
-        guard let value = try function.decodeOutput(data)[0] as? T else {
-            throw SmartContractError.invalidData(data)
+        return try function.decodeOutput(data)
+    }
+
+    public func runFunction(name functionName: String, params: Any...) async throws -> [ABIDecodable] {
+        let function = try contract.function(functionName)
+        let abi = try function.encode(params)
+        let data = try await call(abi.hexString)
+        return try function.decodeOutput(data)
+    }
+    
+    func runFunction<T>(_ functionName: String) async throws -> T {
+        guard let value = try await runFunction(name: functionName)[0] as? T else {
+            throw SmartContractError.invalidType
         }
         return value
     }
     
     func runFunction<T>(_ functionName: String, params: Any...) async throws -> T {
-        let function = try contract.function(functionName)
-        let abi = try function.encode(params)
-        let data = try await call(abi.hexString)
-        
-        guard let value = try function.decodeOutput(data)[0] as? T else {
-            throw SmartContractError.invalidData(data)
+        guard let value = try await runFunction(name: functionName, params: params)[0] as? T else {
+            throw SmartContractError.invalidType
         }
         return value
     }

@@ -13,6 +13,7 @@ public enum SmartContractError: Error {
     case invalidJson
     case invalidFunctionName(String)
     case invalidSignature
+    case invalidType
     
     case invalidAddress
     case wrongValue(Any, ABIRawType)
