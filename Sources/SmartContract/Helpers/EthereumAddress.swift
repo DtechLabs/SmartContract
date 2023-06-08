@@ -60,9 +60,11 @@ public struct EthereumAddress {
     /// - Parameter addr: address in string format, case insensitive, `0x` prefix is not required.
     /// - Returns: validates and checksums the address. Returns `nil` if checksum has failed or given string cannot be
     /// represented as `ASCII` data. Otherwise, checksummed address is returned with `0x` prefix.
-    public static func toChecksumAddress(_ address: String) -> String? {
-        let address = address.lowercased().stripHexPrefix()
-        guard let hash = address.data(using: .ascii)?.sha3(.keccak256).toHexString().stripHexPrefix() else {
+    public static func toChecksumAddress(_ address: String?) -> String? {
+        guard
+            let address = address?.lowercased().stripHexPrefix(),
+            let hash = address.data(using: .ascii)?.sha3(.keccak256).toHexString().stripHexPrefix()
+        else {
             return nil
         }
         var ret = "0x"
