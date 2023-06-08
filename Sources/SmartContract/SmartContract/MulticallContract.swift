@@ -9,9 +9,9 @@ import BigInt
 
 public struct MulticallContract: SmartContract {
     
-    var rpc: RpcApi?
-    var address: String?
-    let contract = GenericSmartContract.Multicall
+    public var rpc: RpcApi?
+    public var address: String?
+    public let contract = GenericSmartContract.Multicall
     
     public init() {
         self.rpc = nil
