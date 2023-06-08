@@ -26,14 +26,36 @@ public struct MulticallContract: SmartContract {
     public struct Call: ABIEncodable {
         public let address: EthereumAddress
         public let bytes: Data
-        public var output: [ABIRawType] = []
+        public var output: [ABIFunction.Output] = []
         public var result: [ABIDecodable] = []
-        
+
         public func encode(as type: ABIRawType) throws -> Data {
             guard case .tuple = type else {
                 throw ABIEncoderError.typeMismatch(self, type)
             }
             return try ABIEncoder.encodeDynamic((.address, address), (.dynamicBytes, bytes))
+        }
+        
+        public func getResult<T: ABIDecodable>(_ name: String) throws -> T  {
+            guard let index = output.firstIndex(where: { $0.name == name }) else {
+                throw ABIDecoderError.unknownOutputName
+            }
+            
+            guard let value = result[index] as? T else {
+                throw ABIDecoderError.mismatchTypes(output[index].type, T.self)
+            }
+            return value
+        }
+        
+        public func getResult<T: ABIDecodable>(by index: Int) throws -> T  {
+            guard result.indices.contains(index) else {
+                throw ABIDecoderError.resultNotFound(index)
+            }
+            
+            guard let value = result[index] as? T else {
+                throw ABIDecoderError.mismatchTypes(output[index].type, T.self)
+            }
+            return value
         }
     }
     
@@ -44,7 +66,7 @@ public struct MulticallContract: SmartContract {
         return Call(
             address: address,
             bytes: try function.encode(),
-            output: function.outputs.map { $0.type }
+            output: function.outputs
         )
     }
     
@@ -55,7 +77,7 @@ public struct MulticallContract: SmartContract {
         return Call(
             address: address,
             bytes: try function.encode(params),
-            output: function.outputs.map { $0.type }
+            output: function.outputs
         )
     }
     
@@ -68,7 +90,7 @@ public struct MulticallContract: SmartContract {
             throw SmartContractError.invalidData(answer)
         }
         for index in calls.indices {
-            calls[index].result = try ABIDecoder.decodeDynamicOutput(types: calls[index].output, data: bytesArray[index])
+            calls[index].result = try ABIDecoder.decodeDynamicOutput(types: calls[index].output.map { $0.type }, data: bytesArray[index])
         }
         return (values[0] as! BigUInt, bytesArray)
     }

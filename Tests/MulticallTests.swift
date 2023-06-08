@@ -59,15 +59,32 @@ final class MulticallTests: XCTestCase {
         let rpc = RPC(url: url)
         let contract = MulticallContract(rcp: rpc, address: address)
         let erc20 = ERC20Contract()
-        var calls: [MulticallContract.Call] = [
-            .init(address: wrappedETH, bytes: try erc20.abi("name"), output: [.string]),
-            .init(address: wrappedETH, bytes: try erc20.abi("symbol"), output: [.string])
+        var calls = [
+            try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),
+            try MulticallContract.call(erc20.function("symbol"), address: wrappedETH.address)
         ]
         
         _ = try await contract.aggregate(&calls)
         
         XCTAssertEqual(calls[0].result[0] as! String, "Wrapped Ether")
         XCTAssertEqual(calls[1].result[0] as! String, "WETH")
+    }
+    
+    func testGetResult() async throws {
+        let rpc = RPC(url: url)
+        let contract = MulticallContract(rcp: rpc, address: address)
+        let erc20 = ERC20Contract()
+        var calls = [
+            try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),
+            try MulticallContract.call(erc20.function("symbol"), address: wrappedETH.address)
+        ]
+        
+        _ = try await contract.aggregate(&calls)
+        
+        let name: String = try calls[0].getResult("")
+        let symbol: String = try calls[1].getResult(by: 0)
+        XCTAssertEqual(name, "Wrapped Ether")
+        XCTAssertEqual(symbol, "WETH")
     }
     
 }
