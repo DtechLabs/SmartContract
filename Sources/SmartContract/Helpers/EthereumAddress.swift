@@ -11,7 +11,7 @@ public struct EthereumAddress {
     
     private let _address: String
     public var type: AddressType = .normal
-    public static let zero = EthereumAddress("0x0000000000000000000000000000000000000000")
+    public static let zero = EthereumAddress("0x0000000000000000000000000000000000000000")!
     
     var abiData: Data? {
         let address = padAddress()
