@@ -7,11 +7,12 @@
 
 import Foundation
 
-protocol SmartContract {
+public protocol SmartContract {
     
     var contract: GenericSmartContract { get }
     var rpc: RpcApi? { get set }
     var address: String? { get set }
+    func function(_ name: String) throws -> SmartContractFunction
     
 }
 

@@ -9,9 +9,9 @@ import BigInt
 
 public struct ERC20Contract: SmartContract {
 
-    let contract = GenericSmartContract.ERC20
-    var rpc: RpcApi?
-    var address: String?
+    public let contract = GenericSmartContract.ERC20
+    public var rpc: RpcApi?
+    public var address: String?
     
     public init() {
         self.rpc = nil

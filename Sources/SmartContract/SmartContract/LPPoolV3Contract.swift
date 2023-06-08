@@ -9,9 +9,9 @@ import BigInt
 
 public struct LPPoolV3Contract: SmartContract {
     
-    let contract = GenericSmartContract.LPPoolV3
-    var rpc: RpcApi?
-    var address: String?
+    public let contract = GenericSmartContract.LPPoolV3
+    public var rpc: RpcApi?
+    public var address: String?
     
     public init() {
         self.rpc = nil
