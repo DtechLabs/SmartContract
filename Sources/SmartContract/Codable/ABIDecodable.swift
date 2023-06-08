@@ -14,6 +14,9 @@ public enum ABIDecoderError: Error {
     case unsupportedType(ABIRawType)
     case shouldBeFixedSize
     case unknownCase
+    case unknownOutputName
+    case resultNotFound(Int)
+    case mismatchTypes(ABIRawType, ABIDecodable.Type)
     
 }
 
