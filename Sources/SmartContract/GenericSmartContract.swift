@@ -45,7 +45,8 @@ public struct GenericSmartContract {
     
 }
 
-extension GenericSmartContract {
+// MARK: Preloaded Contract
+public extension GenericSmartContract {
     
     static let ERC20 = try! GenericSmartContract("erc20")
     static let LPPoolV3 = try! GenericSmartContract("lp-pool-v3")

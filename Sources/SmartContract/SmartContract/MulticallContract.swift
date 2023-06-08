@@ -37,6 +37,28 @@ public struct MulticallContract: SmartContract {
         }
     }
     
+    public static func call(_ function: SmartContractFunction, address: String) throws -> Call {
+        guard let address = EthereumAddress(address) else {
+            throw SmartContractError.invalidAddress
+        }
+        return Call(
+            address: address,
+            bytes: try function.encode(),
+            output: function.outputs.map { $0.type }
+        )
+    }
+    
+    public static func call(_ function: SmartContractFunction, address: String, params: Any...) throws -> Call {
+        guard let address = EthereumAddress(address) else {
+            throw SmartContractError.invalidAddress
+        }
+        return Call(
+            address: address,
+            bytes: try function.encode(params),
+            output: function.outputs.map { $0.type }
+        )
+    }
+    
     @discardableResult
     public func aggregate(_ calls: inout [Call]) async throws -> (BigUInt, [Data]) {
         let answer = try await call(aggregateAbi(calls).hexString)
