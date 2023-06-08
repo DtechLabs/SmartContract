@@ -51,4 +51,8 @@ public struct LPPoolV3Contract: SmartContract {
         try await runFunction("liquidity")
     }
     
+    public func slot0() async throws -> [ABIDecodable] {
+        try await runFunction(name: "slot0")
+    }
+    
 }
