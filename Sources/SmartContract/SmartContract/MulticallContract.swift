@@ -47,7 +47,7 @@ public struct MulticallContract: SmartContract {
             return value
         }
         
-        public func getResult<T: ABIDecodable>(by index: Int) throws -> T  {
+        public func getResult<T: ABIDecodable>(by index: Int = 0) throws -> T  {
             guard result.indices.contains(index) else {
                 throw ABIDecoderError.resultNotFound(index)
             }
