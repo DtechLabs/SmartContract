@@ -46,6 +46,10 @@ extension SmartContract {
         return try await rpc.call(to: address, data: abi)
     }
     
+    public func function(_ name: String) throws -> SmartContractFunction {
+        try contract.function(name)
+    }
+    
     public func abi(_ functionName: String) throws -> Data {
         try contract.function(functionName).encode()
     }
