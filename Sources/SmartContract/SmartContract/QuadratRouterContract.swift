@@ -10,7 +10,7 @@ import BigInt
 
 public struct QuadratRouterContract: SmartContract {
     
-    public let contract = GenericSmartContract.ERC20
+    public let contract = GenericSmartContract.QuadratRouter
     public var rpc: RpcApi?
     public var address: String?
     

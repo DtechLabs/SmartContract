@@ -10,5 +10,6 @@ import Foundation
 public protocol RpcApi {
     
     func call<Result: Codable>(to: String, data: String) async throws -> Result
+    func call(to: String, data: String) async throws
     
 }
