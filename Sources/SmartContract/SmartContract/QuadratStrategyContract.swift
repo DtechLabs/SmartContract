@@ -7,7 +7,7 @@
 import Foundation
 import BigInt
 
-struct QuadratStrategyContract: SmartContract {
+public struct QuadratStrategyContract: SmartContract {
     
     public let contract = GenericSmartContract.QuadratStrategy
     public var rpc: RpcApi?
