@@ -55,6 +55,15 @@ struct QuadratStrategyContract: SmartContract {
         try await callFunction("executiveRebalance", params: newLowerTick, newUpperTick, swapThresholdPrice, swapAmountBPS, zeroForOne)
     }
     
+    /// - Returns: uint256
+    public func balanceOf(account: String) async throws -> BigUInt {
+        guard let account = EthereumAddress(account) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("balanceOf", params: account)
+    }
+    
+    
     // MARK: - Static data function
     
     /// - Returns: amount0Current: BigUInt, amount1Current: BigUInt,
@@ -89,4 +98,48 @@ struct QuadratStrategyContract: SmartContract {
         return try await runFunction("token1")
     }
     
+    /// - Returns: bytes32 (Data),
+    public func getPositionID() async throws -> Data {
+        return try await runFunction("getPositionID")
+    }
+    
+    /// - Returns: int24,
+    public func lowerTick() async throws -> BigInt {
+        return try await runFunction("lowerTick")
+    }
+    
+    /// - Returns: int24,
+    public func upperTick() async throws -> BigInt {
+        return try await runFunction("upperTick")
+    }
+    
+    /// - Returns: int16,
+    public func managerFeeBPS() async throws -> BigInt {
+        return try await runFunction("managerFeeBPS")
+    }
+    
+    /// - Returns: uint256,
+    public func managerBalance0() async throws -> BigUInt {
+        return try await runFunction("managerBalance0")
+    }
+    
+    /// - Returns: uint256,
+    public func managerBalance1() async throws -> BigUInt {
+        return try await runFunction("managerBalance1")
+    }
+    
+    /// - Returns: uint256,
+    public func hyperpoolsBalance0() async throws -> BigUInt {
+        return try await runFunction("hyperpoolsBalance0")
+    }
+    
+    /// - Returns: uint256,
+    public func hyperpoolsBalance1() async throws -> BigUInt {
+        return try await runFunction("hyperpoolsBalance1")
+    }
+    
+    /// - Returns: uint256,
+    public func totalSupply() async throws -> BigUInt {
+        return try await runFunction("totalSupply")
+    }
 }
