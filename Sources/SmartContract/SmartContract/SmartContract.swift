@@ -45,6 +45,15 @@ extension SmartContract {
         }
         return value
     }
+
+    func callFunction(_ functionName: String, params: Any...) async throws {
+        guard let rpc = rpc, let address = address else {
+            throw SmartContractError.contractOrRpcDidNotSet
+        }
+        let function = try contract.function(functionName)
+        let abi = try function.encode(params)
+        try await rpc.call(to: address, data: abi.hexString)
+    }
     
     func call(_ abi: String) async throws -> String {
         guard let rpc = rpc, let address = address else {

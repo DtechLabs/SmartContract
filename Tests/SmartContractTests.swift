@@ -22,6 +22,9 @@ final class SmartContractTests: XCTestCase {
         
         let quadratRouter = try GenericSmartContract("quadrat-router")
         XCTAssertEqual(quadratRouter.functions.count, 18)
+        
+        let quadratStrategy = try GenericSmartContract("quadrat-strategy")
+        XCTAssertEqual(quadratStrategy.functions.count, 27)
     }
     
     func testGetFunction() throws {

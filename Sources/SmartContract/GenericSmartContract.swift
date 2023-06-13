@@ -28,7 +28,7 @@ public struct GenericSmartContract {
                 case .event:
                     let event = try JSONDecoder().decode(ABIEvent.self, from: data)
                     events.append(event)
-                case .fallback, .constructor:
+                case .fallback, .constructor, .receive:
                     // Nothing todo right now
                     break
             }
@@ -51,5 +51,7 @@ public extension GenericSmartContract {
     static let ERC20 = try! GenericSmartContract("erc20")
     static let LPPoolV3 = try! GenericSmartContract("lp-pool-v3")
     static let Multicall = try! GenericSmartContract("multicall")
+    static let QuadratRouter = try! GenericSmartContract("quadrat-router")
+    static let QuadratStrategy = try! GenericSmartContract("quadrat-strategy")
     
 }

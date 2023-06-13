@@ -30,7 +30,8 @@ let package = Package(
                 .process("ABI/lp-pool-v3.json"),
                 .process("ABI/router-v2.json"),
                 .process("ABI/multicall.json"),
-                .process("ABI/quadrat-router.json")
+                .process("ABI/quadrat-router.json"),
+                .process("ABI/quadrat-strategy.json")
             ]
         ),
         .testTarget(
