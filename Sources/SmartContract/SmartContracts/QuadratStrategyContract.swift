@@ -142,4 +142,15 @@ public struct QuadratStrategyContract: SmartContract {
     public func totalSupply() async throws -> BigUInt {
         return try await runFunction("totalSupply")
     }
+    
+    public func whiteListEnabled() async throws -> Bool {
+        return try await runFunction("whiteListEnabled")
+    }
+    
+    public func whiteList(address: String) async throws -> Bool {
+        guard let address = EthereumAddress(address) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("whiteList", params: address)
+    }
 }
