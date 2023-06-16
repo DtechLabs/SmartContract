@@ -130,6 +130,9 @@ public struct SmartContractFunction {
         }
         let types = outputs.map { $0.type }
         let isDynamic = !types.filter { !$0.isFixedSize }.isEmpty
+        guard !data.isEmpty else {
+            throw SmartContractError.invalidData(rawAnswer)
+        }
         return try isDynamic ? ABIDecoder.decodeDynamicOutput(types: types, data: data) : ABIDecoder.decodeOutput(types: types, data: data)
     }
 
