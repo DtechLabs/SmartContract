@@ -13,3 +13,5 @@ public protocol RpcApi {
     func call(to: String, data: String) async throws
     
 }
+
+/// "https://chainid.network/chains.json" - List of chains

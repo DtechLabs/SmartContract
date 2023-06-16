@@ -25,13 +25,13 @@ public struct LPPoolV3Contract: SmartContract {
     
     /// The first of the two tokens of the pool, sorted by address
     /// - Returns: The token0 contract address **EthereumAddress**
-    public func token0() async throws -> String {
+    public func token0() async throws -> EthereumAddress {
         try await runFunction("token0")
     }
     
     /// The second of the two tokens of the pool, sorted by address
     /// - Returns: The token1 contract address **EthereumAddress**
-    public func token1() async throws -> String {
+    public func token1() async throws -> EthereumAddress {
         try await runFunction("token1")
     }
     

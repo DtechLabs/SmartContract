@@ -9,9 +9,7 @@ import Foundation
 import SmartContract
 
 public struct RPC: RpcApi {
-    
 
-    
     let url: URL
     
     public func call<Result: Decodable>(to: String, data: String) async throws -> Result {
@@ -33,7 +31,7 @@ public struct RPC: RpcApi {
         
         let (data, _) = try await URLSession.shared.data(for: request)
         let jsonAnswer = try JSONDecoder().decode(JsonRpcResult<Bool>.self, from: data)
-        guard let result = jsonAnswer.result else {
+        guard jsonAnswer.result != nil else {
             throw NSError(domain: "RPC", code: 0, userInfo: ["error": jsonAnswer.error?.value ?? ""])
         }
     }
