@@ -18,8 +18,8 @@ public struct ERC20Contract: SmartContract {
         self.address = nil
     }
     
-    public init(rcp: RpcApi, address: String) {
-        self.rpc = rcp
+    public init(rpc: RpcApi, address: String) {
+        self.rpc = rpc
         self.address = address
     }
     
