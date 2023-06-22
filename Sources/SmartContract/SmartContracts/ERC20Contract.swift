@@ -35,8 +35,11 @@ public struct ERC20Contract: SmartContract {
         try await runFunction("decimals")
     }
     
-    public func approve() async throws -> Bool {
-        try await runFunction("approve")
+    public func approve(spender: String, value: BigUInt) async throws -> Bool {
+        guard let spender = EthereumAddress(spender) else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("approve", params: spender, value)
     }
     
     public func totalSupply() async throws -> BigUInt {
