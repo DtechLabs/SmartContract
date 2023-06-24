@@ -10,7 +10,7 @@ import BigInt
 
 public enum ABIEncoder {
     
-    static func encodeDynamic(_ values: (ABIRawType, ABIEncodable)...) throws -> Data {
+    static func encodeDynamic(_ values: [(ABIRawType, ABIEncodable)]) throws -> Data {
         var head = Data(repeating: 0x0, count: 32 * values.count)
         var tail = Data()
         
@@ -34,6 +34,10 @@ public enum ABIEncoder {
         }
         head.append(tail)
         return head
+    }
+    
+    static func encodeDynamic(_ values: (ABIRawType, ABIEncodable)...) throws -> Data {
+        try encodeDynamic(values)
     }
     
     static func encodeDynamic(arrayOf type: ABIRawType, values: [ABIEncodable]) throws -> Data {

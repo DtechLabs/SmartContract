@@ -57,7 +57,7 @@ final class MulticallTests: XCTestCase {
     
     func testCall() async throws {
         let rpc = RPC(url: url)
-        let contract = MulticallContract(rcp: rpc, address: address)
+        let contract = MulticallContract(rpc: rpc, address: address)
         let erc20 = ERC20Contract()
         var calls = [
             try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),
@@ -72,7 +72,7 @@ final class MulticallTests: XCTestCase {
     
     func testGetResult() async throws {
         let rpc = RPC(url: url)
-        let contract = MulticallContract(rcp: rpc, address: address)
+        let contract = MulticallContract(rpc: rpc, address: address)
         let erc20 = ERC20Contract()
         var calls = [
             try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),

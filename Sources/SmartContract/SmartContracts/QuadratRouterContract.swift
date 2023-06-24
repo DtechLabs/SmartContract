@@ -24,6 +24,7 @@ public struct QuadratRouterContract: SmartContract {
         self.address = address
     }
     
+    /// **GetMintAmount**
     /// - Returns:
     ///  - amount0: BigUint,
     ///  - amount1: BigUInt,
@@ -35,7 +36,7 @@ public struct QuadratRouterContract: SmartContract {
         guard let hyperpool = EthereumAddress(hyperpool), let token = EthereumAddress(paymentToken) else {
             throw SmartContractError.invalidAddress
         }
-        return try await runFunction(name: "getMintAmounts", params: hyperpool, token, paymentAmount)
+        return try await runFunction(name: "getMintAmounts", params: [hyperpool, token, paymentAmount])
     }
     
     public func getPrice(tokenIn: String, tokenOut: String, uniFee: BigUInt, sqrtRatioX96: BigUInt) async throws -> BigUInt {
@@ -69,7 +70,7 @@ public struct QuadratRouterContract: SmartContract {
         guard let hyperpool = EthereumAddress(hyperpool), let token = EthereumAddress(paymentToken) else {
             throw SmartContractError.invalidAddress
         }
-        return try await runFunction(name: "min", params: hyperpool, token, paymentAmount, sqrtPriceLimitX960, sqrtPriceLimitX961)
+        return try await runFunction(name: "min", params: [hyperpool, token, paymentAmount, sqrtPriceLimitX960, sqrtPriceLimitX961])
     }
     
     /// - Returns:
@@ -92,7 +93,7 @@ public struct QuadratRouterContract: SmartContract {
         else {
             throw SmartContractError.invalidAddress
         }
-        return try await runFunction(name: "mintHyper", params: hyperpool, token, paymentAmount, hyperDex, callData1, callData2)
+        return try await runFunction(name: "mintHyper", params: [hyperpool, token, paymentAmount, hyperDex, callData1, callData2])
     }
     
 }

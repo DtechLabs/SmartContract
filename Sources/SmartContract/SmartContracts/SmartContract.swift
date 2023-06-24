@@ -25,9 +25,9 @@ extension SmartContract {
         return try function.decodeOutput(data)
     }
 
-    public func runFunction(name functionName: String, params: Any...) async throws -> [ABIDecodable] {
+    public func runFunction(name functionName: String, params: [ABIEncodable]) async throws -> [ABIDecodable] {
         let function = try contract.function(functionName)
-        let abi = try function.encode(params)
+        let abi = try function.encode(params: params)
         let data = try await call(abi.hexString)
         return try function.decodeOutput(data)
     }
@@ -39,19 +39,19 @@ extension SmartContract {
         return value
     }
     
-    func runFunction<T>(_ functionName: String, params: Any...) async throws -> T {
+    func runFunction<T>(_ functionName: String, params: ABIEncodable...) async throws -> T {
         guard let value = try await runFunction(name: functionName, params: params)[0] as? T else {
             throw SmartContractError.invalidType
         }
         return value
     }
 
-    func callFunction(_ functionName: String, params: Any...) async throws {
+    func callFunction(_ functionName: String, params: ABIEncodable...) async throws {
         guard let rpc = rpc, let address = address else {
             throw SmartContractError.contractOrRpcDidNotSet
         }
         let function = try contract.function(functionName)
-        let abi = try function.encode(params)
+        let abi = try function.encode(params: params)
         try await rpc.call(to: address, data: abi.hexString)
     }
     
@@ -70,8 +70,8 @@ extension SmartContract {
         try contract.function(functionName).encode()
     }
     
-    public func abi(_ functionName: String, params: Any...) throws -> String {
-        try contract.function(functionName).encode(params).hexString
+    public func abi(_ functionName: String, params: ABIEncodable...) throws -> String {
+        try contract.function(functionName).encode(params: params).hexString
     }
     
     public func decode<T>(_ functionName: String, data: String) throws -> T {

@@ -18,7 +18,7 @@ final class UniswapPoolTests: XCTestCase {
 
     func testSingleCall() async throws {
         let rpc = RPC(url: url)
-        let contract = LPPoolV3Contract(rcp: rpc, address: address)
+        let contract = LPPoolV3Contract(rpc: rpc, address: address)
         let token0 = try await contract.token0()
         XCTAssertEqual(token0.address.lowercased(), "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270")
         let token1 = try await contract.token1()

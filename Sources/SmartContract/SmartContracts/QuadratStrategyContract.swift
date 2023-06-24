@@ -25,7 +25,7 @@ public struct QuadratStrategyContract: SmartContract {
     
     /// - Returns:amount0: BigUInt, amount1: BigUInt, mintAmount: BigUInt, sqrtRatioX96: BigUInt
     public func getMintAmounts(amount0Max: BigUInt, amount1Max: BigUInt) async throws -> [ABIDecodable] {
-        return try await runFunction(name: "getMintAmounts", params: amount0Max, amount1Max)
+        return try await runFunction(name: "getMintAmounts", params: [amount0Max, amount1Max])
     }
 
     /// - Returns: *amountA*: BigUInt, *amountB*: BigUInt, *mintAmount*: BigUInt, *liquidityMinted*: BigUInt
@@ -33,7 +33,7 @@ public struct QuadratStrategyContract: SmartContract {
         guard let receiver = EthereumAddress(receiver) else {
             throw SmartContractError.invalidAddress
         }
-        return try await runFunction(name: "mint", params: amount0Max, amount1Max, receiver)
+        return try await runFunction(name: "mint", params: [amount0Max, amount1Max, receiver])
     }
     
     /// - Returns: amountA: BigUInt, amountB: BigUInt, liquidityBurned: BigUInt
@@ -41,7 +41,7 @@ public struct QuadratStrategyContract: SmartContract {
         guard let receiver = EthereumAddress(receiver) else {
             throw SmartContractError.invalidAddress
         }
-        return try await runFunction(name: "burn", params: burnAmount, receiver)
+        return try await runFunction(name: "burn", params: [burnAmount, receiver])
     }
     
     /// - Returns: No Returns

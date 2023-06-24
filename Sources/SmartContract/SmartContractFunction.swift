@@ -23,12 +23,25 @@ public struct SmartContractFunction {
         try signatureData()
     }
     
-    public func encode(_ params: Any...) throws -> Data {
-        var buffer = try signatureData()
-        for data in try encodeParams(params) {
-            buffer += data
+    public func encode(param: ABIEncodable) throws -> Data {
+        try encode(params: [param])
+    }
+    
+    public func encode(params: [ABIEncodable]) throws -> Data {
+        var encoded = try signatureData()
+        guard params.count == inputs.count else {
+            throw SmartContractError.invalidInputsCount(params.count)
         }
-        return buffer
+        if isFixedSize {
+            for (index, type) in inputs.enumerated() {
+                let data = try params[index].encode(as: type.type)
+                encoded += data
+            }
+        } else {
+            let items = zip(inputs.map { $0.type }, params).map { ($0, $1) }
+            encoded += try ABIEncoder.encodeDynamic(items)
+        }
+        return encoded
     }
     
     public var methodName: String {
@@ -53,6 +66,13 @@ public struct SmartContractFunction {
         return data.web3.keccak256.prefix(4).web3.hexString
     }
     
+    var isFixedSize: Bool {
+        for input in inputs {
+            if !input.type.isFixedSize { return false }
+        }
+        return true
+    }
+    
     func signatureData() throws -> Data {
         guard let data = methodName.data(using: .utf8) else {
             throw SmartContractError.invalidSignature
@@ -60,70 +80,59 @@ public struct SmartContractFunction {
         return data.web3.keccak256.prefix(4)
     }
     
-    private func encodeParams(_ params: Any...) throws -> [Data] {
-        guard params.count == inputs.count else {
-            throw SmartContractError.invalidInputsCount(params.count)
-        }
-        var result: [Data] = []
-        for (index, type) in inputs.enumerated() {
-            result.append(try encode(params[index], of: type.type))
-        }
-        return result
-    }
-    
-    private func encode(_ value: Any, of type: ABIRawType) throws -> Data {
-        if type.isSignedInteger {
-            if type.bitsCount > 64 {
-                guard let bigInteger = value as? BigInt else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            } else {
-                guard
-                    let intValue = value as? Int,
-                    let bigInteger = BigInt(exactly: intValue)
-                else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            }
-        } else if type.isUnsignedInteger {
-            if type.bitsCount > 64 {
-                guard let bigInteger = value as? BigUInt else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            } else {
-                guard
-                    let intValue = value as? UInt,
-                    let bigInteger = BigUInt(exactly: intValue)
-                else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            }
-        } else {
-            switch type {
-                case .bool:
-                    guard let boolValue = value as? Bool else {
-                        throw SmartContractError.wrongValue(value, type)
-                    }
-                    let intValue = boolValue ? 1 : 0
-                    return BigInt(intValue).abiEncode(bits: 256)
-                case .address:
-                    guard
-                        let addressValue = value as? String, addressValue.hasPrefix("0x"),
-                        let data = EthereumAddress(addressValue)?.abiData
-                    else {
-                        throw SmartContractError.wrongValue(value, type)
-                    }
-                    return data
-                default:
-                    throw SmartContractError.unsupportedType(type)
-            }
-        }
-    }
-    
+//    private func encode(_ value: Any, of type: ABIRawType) throws -> Data {
+//        if type.isSignedInteger {
+//            if type.bitsCount > 64 {
+//                guard let bigInteger = value as? BigInt else {
+//                    throw SmartContractError.wrongValue(value, type)
+//                }
+//                return bigInteger.abiEncode(bits: type.bitsCount)
+//            } else {
+//                guard
+//                    let intValue = value as? Int,
+//                    let bigInteger = BigInt(exactly: intValue)
+//                else {
+//                    throw SmartContractError.wrongValue(value, type)
+//                }
+//                return bigInteger.abiEncode(bits: type.bitsCount)
+//            }
+//        } else if type.isUnsignedInteger {
+//            if type.bitsCount > 64 {
+//                guard let bigInteger = value as? BigUInt else {
+//                    throw SmartContractError.wrongValue(value, type)
+//                }
+//                return bigInteger.abiEncode(bits: type.bitsCount)
+//            } else {
+//                guard
+//                    let intValue = value as? UInt,
+//                    let bigInteger = BigUInt(exactly: intValue)
+//                else {
+//                    throw SmartContractError.wrongValue(value, type)
+//                }
+//                return bigInteger.abiEncode(bits: type.bitsCount)
+//            }
+//        } else {
+//            switch type {
+//                case .bool:
+//                    guard let boolValue = value as? Bool else {
+//                        throw SmartContractError.wrongValue(value, type)
+//                    }
+//                    let intValue = boolValue ? 1 : 0
+//                    return BigInt(intValue).abiEncode(bits: 256)
+//                case .address:
+//                    guard
+//                        let addressValue = value as? String, addressValue.hasPrefix("0x"),
+//                        let data = EthereumAddress(addressValue)?.abiData
+//                    else {
+//                        throw SmartContractError.wrongValue(value, type)
+//                    }
+//                    return data
+//                default:
+//                    throw SmartContractError.unsupportedType(type)
+//            }
+//        }
+//    }
+//
     public func decodeOutput(_ rawAnswer: String) throws -> [ABIDecodable] {
         guard let data = Data(hex: rawAnswer) else {
             throw SmartContractError.invalidData(rawAnswer)

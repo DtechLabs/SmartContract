@@ -50,6 +50,11 @@ public struct RPC: RpcApi {
         return result
     }
     
+}
+
+
+extension RPC {
     
+    static let polygon = RPC(url: URL(string: "https://polygon-rpc.com")!)
     
 }

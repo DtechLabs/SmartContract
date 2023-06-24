@@ -34,7 +34,7 @@ class ERC20ContractTests: XCTestCase {
     func testSingleCall() async throws {
         
         let rpc = RPC(url: rpc)
-        let contract = ERC20Contract(rcp: rpc, address: wrappedETH)
+        let contract = ERC20Contract(rpc: rpc, address: wrappedETH)
         let name = try await contract.name()
         XCTAssertEqual(name, "Wrapped Ether")
 

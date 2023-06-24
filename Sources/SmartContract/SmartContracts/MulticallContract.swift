@@ -70,13 +70,13 @@ public struct MulticallContract: SmartContract {
         )
     }
     
-    public static func call(_ function: SmartContractFunction, address: String, params: Any...) throws -> Call {
+    public static func call(_ function: SmartContractFunction, address: String, params: ABIEncodable...) throws -> Call {
         guard let address = EthereumAddress(address) else {
             throw SmartContractError.invalidAddress
         }
         return Call(
             address: address,
-            bytes: try function.encode(params),
+            bytes: try function.encode(), // (params),
             output: function.outputs
         )
     }

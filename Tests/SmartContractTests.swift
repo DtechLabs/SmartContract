@@ -67,11 +67,12 @@ final class SmartContractTests: XCTestCase {
     func testEncodeFunction() throws {
         let balanceOfAbiData = "0x70a0823100000000000000000000000055d398326f99059ff775485246999027b3197955"
         let erc20 = GenericSmartContract.ERC20
-        let balanceOfData = try erc20.function("balanceOf").encode("0x55d398326f99059ff775485246999027b3197955")
+        let account = EthereumAddress("0x55d398326f99059ff775485246999027b3197955")!
+        let balanceOfData = try erc20.function("balanceOf").encode(param: account)
         XCTAssertEqual(balanceOfData.hexString, balanceOfAbiData)
         
         let transferAbi = "0xa9059cbb00000000000000000000000055d398326f99059ff775485246999027b3197955000000000000000000000000000000000000000000661efdf2e3b19f7c045f15"
-        let transferData = try erc20.function("transfer").encode("0x55d398326f99059ff775485246999027b3197955", BigUInt("123456789123456789123456789"))
+        let transferData = try erc20.function("transfer").encode(params: [account, BigUInt("123456789123456789123456789")])
         XCTAssertEqual(transferAbi, transferData.hexString)
     }
 }
