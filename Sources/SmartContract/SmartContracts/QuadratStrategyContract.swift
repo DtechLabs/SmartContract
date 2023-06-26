@@ -143,6 +143,11 @@ public struct QuadratStrategyContract: SmartContract {
         return try await runFunction("totalSupply")
     }
     
+    /// - Returns: uint256,
+    public func getLiquidity() async throws -> BigUInt {
+        return try await runFunction("getLiquidity")
+    }
+ 
     public func whiteListEnabled() async throws -> Bool {
         return try await runFunction("whiteListEnabled")
     }
