@@ -96,4 +96,43 @@ public struct QuadratRouterContract: SmartContract {
         return try await runFunction(name: "mintHyper", params: [hyperpool, token, paymentAmount, hyperDex, callData1, callData2])
     }
     
+    /// - Returns:
+    ///  - returnTokenReturn: BigUint,
+    ///  - token0Return: BigUInt,
+    ///  - token1Return: BigUInt,
+    public func estimateBurnReturn(
+        hyperpool: String,
+        burnAmount: BigUInt,
+        returnToken: String,
+        sqrtPriceX960: BigUInt,
+        sqrtPriceX961: BigUInt
+    ) async throws -> [ABIDecodable] {
+        guard
+            let hyperpool = EthereumAddress(hyperpool),
+            let returnToken = EthereumAddress(returnToken)
+        else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("estimateBurnReturn", params: hyperpool, burnAmount, returnToken, sqrtPriceX960, sqrtPriceX961)
+    }
+    
+    /// - Returns:
+    ///  - returnAmount: BigUint (unit256),
+    ///  - liquidityBurned: BigUInt (uint128),
+    public func burn(
+        hyperpool: String,
+        burnAmount: BigUInt,
+        returnToken: String,
+        sqrtPriceX960: BigUInt,
+        sqrtPriceX961: BigUInt
+    ) async throws -> [ABIDecodable] {
+        guard
+            let hyperpool = EthereumAddress(hyperpool),
+            let returnToken = EthereumAddress(returnToken)
+        else {
+            throw SmartContractError.invalidAddress
+        }
+        return try await runFunction("burn", params: hyperpool, burnAmount, returnToken, sqrtPriceX960, sqrtPriceX961)
+    }
+    
 }
