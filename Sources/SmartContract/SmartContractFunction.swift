@@ -22,16 +22,22 @@ public struct SmartContractFunction {
     public func encode() throws -> Data {
         try signatureData()
     }
-    
+
     public func encode(param: ABIEncodable) throws -> Data {
         try encode(params: [param])
     }
     
     public func encode(params: [ABIEncodable]) throws -> Data {
         var encoded = try signatureData()
+        
         guard params.count == inputs.count else {
             throw SmartContractError.invalidInputsCount(params.count)
         }
+        
+        if params.count == 0 {
+            return encoded
+        }
+        
         if isFixedSize {
             for (index, type) in inputs.enumerated() {
                 let data = try params[index].encode(as: type.type)
@@ -93,9 +99,9 @@ public struct SmartContractFunction {
     }
     
     public func decodeResult(_ rawAnswer: String) throws -> SmartContractResult {
-        SmartContractResult(
+        try SmartContractResult(
             values: try decodeOutput(rawAnswer),
-            names: outputs.map { $0.name }
+            outputs: outputs
         )
     }
 

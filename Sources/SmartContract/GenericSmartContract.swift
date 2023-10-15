@@ -1,7 +1,11 @@
 import Foundation
 
-public struct GenericSmartContract {
+@dynamicCallable
+public class GenericSmartContract {
 
+    public var address: String?
+    public var rpc: RpcApi?
+    
     var functions: [ABIFunction] = []
     var events: [ABIEvent] = []
     
@@ -35,13 +39,64 @@ public struct GenericSmartContract {
         }
     }
     
-    func function(_ name: String) throws -> SmartContractFunction {
+    convenience init(_ jsonFile: String, rpc: RpcApi, address: String) throws {
+        try self.init(jsonFile)
+        
+        self.address = address
+        self.rpc = rpc
+    }
+    
+    public func function(_ name: String) throws -> SmartContractFunction {
         guard let function = functions.first(where: { $0.name == name }) else {
             throw SmartContractError.invalidFunctionName(name)
         }
         
         return SmartContractFunction(abi: function)
     }
+    
+    public func dynamicallyCall(withArguments args: [Any]) async throws -> SmartContractResult {
+        guard  let name = args.first as? String else {
+            throw SmartContractError.missedFunctionName
+        }
+        
+        let function = try function(name)
+        let params = args[1...].compactMap { $0 as? ABIEncodable }
+        guard params.count == function.inputs.count else {
+            throw SmartContractError.wrongFunctionArgumentsCountOrType
+        }
+        
+        guard let rpc = rpc, let address = address else {
+            throw SmartContractError.contractOrRpcDidNotSet
+        }
+        
+        let abi = try function.encode(params: params)
+        print("Encoded", abi.hexString)
+        let result: String = try await rpc.call(to: address, data: abi.hexString)
+        let outputs = try function.decodeOutput(result)
+        return try SmartContractResult(values: outputs, outputs: function.outputs)
+    }
+    
+    public func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, [ABICodable]>) async throws -> SmartContractResult {
+        guard args.count == 1 else {
+            throw SmartContractError.invalidFunctionNameOrArguments
+        }
+        
+        guard
+            let address = address,
+            let rpc = rpc
+        else {
+            throw SmartContractError.contractOrRpcDidNotSet
+        }
+        
+        let function = try function(args[0].key)
+        let abi = try function.encode(params: args[0].value)
+        let rawAnswer: String = try await rpc.call(to: address, data: abi.hexString)
+        
+        
+        throw NSError()
+    }
+    
+    
     
 }
 
@@ -53,5 +108,6 @@ public extension GenericSmartContract {
     static let Multicall = try! GenericSmartContract("multicall")
     static let QuadratRouter = try! GenericSmartContract("quadrat-router")
     static let QuadratStrategy = try! GenericSmartContract("quadrat-strategy")
+    static let HyperDexRouter = try! GenericSmartContract("hyper-dex-router")
     
 }
