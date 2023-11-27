@@ -10,12 +10,10 @@ import BigInt
 public struct ERC20Contract {
 
     public let contract = GenericSmartContract.ERC20
-    public let rpc: RpcApi
-    public let address: String
     
     public init(rpc: RpcApi, address: String) {
-        self.rpc = rpc
-        self.address = address
+        contract.rpc = rpc
+        contract.address = address
     }
     
     public func name() async throws -> String {

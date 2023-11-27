@@ -18,11 +18,11 @@ final class QuadratStrategyTests: XCTestCase {
         let amount0 = BigUInt("2083746537199521078")
         let amount1 = BigUInt("1970407")
         let mintResult = try await contract.getMintAmounts(amount0Max: amount0, amount1Max: amount1)
-        let mintAmount = mintResult[2] as! BigUInt
-        XCTAssertLessThanOrEqual(mintResult[0] as! BigUInt, amount0)
-        XCTAssertLessThanOrEqual(mintResult[1] as! BigUInt, amount1)
+        let mintAmount: BigUInt = mintResult.mintAmount!
+        XCTAssertLessThanOrEqual(mintResult.amount0!, amount0)
+        XCTAssertLessThanOrEqual(mintResult.amount1!, amount1)
         print("Mint amount", mintAmount)
-        XCTAssertGreaterThan(mintAmount, 0)
+        XCTAssertGreaterThan(mintAmount, .zero)
     }
 
 }
