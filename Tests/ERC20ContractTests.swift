@@ -10,18 +10,18 @@ import BigInt
 
 class ERC20ContractTests: XCTestCase {
     
-    let rpc =  URL(string: "https://rpc.payload.de")!
+    let rpc = GenericRpcNode(URL(string: "https://rpc.payload.de")!)
     let wrappedETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     
+    lazy var erc30: ERC20Contract = ERC20Contract(rpc: rpc, address: wrappedETH)
+    
     func testCallGenericAbi() async throws {
-        
-        let rpc = RPC(url: rpc)
-        let contract = ERC20Contract()
+        let contract = GenericSmartContract.ERC20
         let rawName: String = try await rpc.call(to: wrappedETH, data: try contract.abi("name"))
         let name: String = try contract.decode("name", data: rawName)
         XCTAssertEqual(name, "Wrapped Ether")
         
-        let rawDecimals: String = try await rpc.call(to: wrappedETH, data: try contract.abi("decimals"))
+        let rawDecimals: String = try await rpc.call(to: wrappedETH, data: try erc30.contract.abi("decimals"))
         let decimals: BigUInt = try contract.decode("decimals", data: rawDecimals)
         XCTAssertEqual(decimals, 18)
         
@@ -32,16 +32,13 @@ class ERC20ContractTests: XCTestCase {
     }
     
     func testSingleCall() async throws {
-        
-        let rpc = RPC(url: rpc)
-        let contract = ERC20Contract(rpc: rpc, address: wrappedETH)
-        let name = try await contract.name()
+        let name = try await erc30.name()
         XCTAssertEqual(name, "Wrapped Ether")
 
-        let decimals = try await contract.decimals()
+        let decimals = try await erc30.decimals()
         XCTAssertEqual(decimals, 18)
 
-        let symbol = try await contract.symbols()
+        let symbol = try await erc30.symbols()
         XCTAssertEqual(symbol, "WETH")
     }
 

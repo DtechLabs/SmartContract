@@ -70,7 +70,6 @@ public class GenericSmartContract {
         }
         
         let abi = try function.encode(params: params)
-        print("Encoded", abi.hexString)
         let result: String = try await rpc.call(to: address, data: abi.hexString)
         let outputs = try function.decodeOutput(result)
         return try SmartContractResult(values: outputs, outputs: function.outputs)
@@ -91,13 +90,25 @@ public class GenericSmartContract {
         let function = try function(args[0].key)
         let abi = try function.encode(params: args[0].value)
         let rawAnswer: String = try await rpc.call(to: address, data: abi.hexString)
-        
-        
-        throw NSError()
+        let outputs = try function.decodeOutput(rawAnswer)
+        return try SmartContractResult(values: outputs, outputs: function.outputs)
     }
     
+    // MARK: Working with raw data
+    public func abi(_ functionName: String) throws -> Data {
+        try function(functionName).encode()
+    }
     
+    public func abi(_ functionName: String, params: ABIEncodable...) throws -> String {
+        try function(functionName).encode(params: params).hexString
+    }
     
+    public func decode<T>(_ functionName: String, data: String) throws -> T {
+        guard let value = try function(functionName).decodeOutput(data)[0] as? T else {
+            throw SmartContractError.invalidData(data)
+        }
+        return value
+    }
 }
 
 // MARK: Preloaded Contract

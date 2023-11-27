@@ -19,7 +19,7 @@ final class SmartContractDynamically: XCTestCase {
         
         let result = try await erc20("name")
         XCTAssertEqual(result.values.count, 1)
-        XCTAssertEqual(result.value, "Wrapped Ether")
+        XCTAssertEqual(result.value as? String, "Wrapped Ether")
     }
 
 }

@@ -37,7 +37,6 @@ public struct RPC: RpcApi {
     }
     
     func call<Result: Decodable, Request: Encodable>(_ data: Request) async throws -> Result {
-        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = try JSONEncoder().encode(data)

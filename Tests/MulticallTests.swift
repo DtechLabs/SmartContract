@@ -15,10 +15,10 @@ final class MulticallTests: XCTestCase {
     
     func testEncodeCallAbi() throws {
         let contract = MulticallContract()
-        let erc20 = ERC20Contract()
+        let erc20 = ERC20Contract(rpc: GenericRpcNode(url), address: address)
         let calls: [MulticallContract.Call] = [
-            .init(address: wrappedETH, bytes: try erc20.abi("name")),
-            .init(address: wrappedETH, bytes: try erc20.abi("symbol"))
+            .init(address: wrappedETH, bytes: try erc20.contract.abi("name")),
+            .init(address: wrappedETH, bytes: try erc20.contract.abi("symbol"))
         ]
 
         XCTAssertEqual(try contract.contract.function("aggregate").methodName, "aggregate((address,bytes)[])")
@@ -56,12 +56,12 @@ final class MulticallTests: XCTestCase {
     }
     
     func testCall() async throws {
-        let rpc = RPC(url: url)
+        let rpc = GenericRpcNode(url)
         let contract = MulticallContract(rpc: rpc, address: address)
-        let erc20 = ERC20Contract()
+        let erc20 = ERC20Contract(rpc: rpc, address: address)
         var calls = [
-            try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),
-            try MulticallContract.call(erc20.function("symbol"), address: wrappedETH.address)
+            try MulticallContract.call(erc20.contract.function("name"), address: wrappedETH.address),
+            try MulticallContract.call(erc20.contract.function("symbol"), address: wrappedETH.address)
         ]
         
         _ = try await contract.aggregate(&calls)
@@ -71,12 +71,12 @@ final class MulticallTests: XCTestCase {
     }
     
     func testGetResult() async throws {
-        let rpc = RPC(url: url)
+        let rpc = GenericRpcNode(url)
         let contract = MulticallContract(rpc: rpc, address: address)
-        let erc20 = ERC20Contract()
+        let erc20 = ERC20Contract(rpc: rpc, address: address)
         var calls = [
-            try MulticallContract.call(erc20.function("name"), address: wrappedETH.address),
-            try MulticallContract.call(erc20.function("symbol"), address: wrappedETH.address)
+            try MulticallContract.call(erc20.contract.function("name"), address: wrappedETH.address),
+            try MulticallContract.call(erc20.contract.function("symbol"), address: wrappedETH.address)
         ]
         
         _ = try await contract.aggregate(&calls)
