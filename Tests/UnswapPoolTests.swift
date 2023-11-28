@@ -12,12 +12,8 @@ final class UniswapPoolTests: XCTestCase {
     let address = "0xa374094527e1673a86de625aa59517c5de346d32"
     let url = URL(string: "https://polygon-rpc.com")!
     
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
     func testSingleCall() async throws {
-        let rpc = RPC(url: url)
+        let rpc = GenericRpcNode(url)
         let contract = LPPoolV3Contract(rpc: rpc, address: address)
         let token0 = try await contract.token0()
         XCTAssertEqual(token0.address.lowercased(), "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270")
@@ -30,7 +26,8 @@ final class UniswapPoolTests: XCTestCase {
         let liquidity = try await contract.liquidity()
         XCTAssertGreaterThan(liquidity, 0)
         let slot0 = try await contract.slot0()
-        XCTAssertEqual(slot0[6] as? Bool, true)
+        let unlocked: Bool = slot0.unlocked!
+        XCTAssertEqual(unlocked, true)
     }
 
 }

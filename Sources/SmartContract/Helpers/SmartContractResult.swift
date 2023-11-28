@@ -31,4 +31,8 @@ public struct SmartContractResult {
         return values[name] as? T
     }
     
+    public var value: ABIDecodable? {
+        values["value"]
+    }
+    
 }

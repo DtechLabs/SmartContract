@@ -20,10 +20,10 @@ final class HyperDexRouterTests: XCTestCase {
         hyperDex.address = contract
         hyperDex.rpc = RPC(url: rpcURL)
         
-        async let result0: BigUInt? = hyperDex("feeReferrals", data[0]).value
-        async let result1: BigUInt? = hyperDex("feeReferrals", data[1]).value
-        async let result2: BigUInt? = hyperDex("feeReferrals", data[2]).value
-        async let result3: BigUInt? = hyperDex("feeReferrals", data[3]).value
+        async let result0 = hyperDex("feeReferrals", data[0]).value as? BigUInt
+        async let result1 = hyperDex("feeReferrals", data[1]).value as? BigUInt
+        async let result2 = hyperDex("feeReferrals", data[2]).value as? BigUInt
+        async let result3 = hyperDex("feeReferrals", data[3]).value as? BigUInt
         let fees = try await [result0, result1, result2, result3]
         
         XCTAssertEqual(fees.count, 4)
@@ -35,7 +35,7 @@ final class HyperDexRouterTests: XCTestCase {
         hyperDex.address = contract
         hyperDex.rpc = RPC(url: rpcURL)
         
-        let result: BigUInt? = try await hyperDex("feeBeneficiary").value
+        let result = try await hyperDex("feeBeneficiary").value as? BigUInt
         
         XCTAssertNotNil(result)
         XCTAssertGreaterThan(result!, BigUInt.zero)

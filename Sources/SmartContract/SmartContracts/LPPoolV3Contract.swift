@@ -7,52 +7,45 @@
 import Foundation
 import BigInt
 
-public struct LPPoolV3Contract: SmartContract {
+public struct LPPoolV3Contract {
     
     public let contract = GenericSmartContract.LPPoolV3
-    public var rpc: RpcApi?
-    public var address: String?
-    
-    public init() {
-        self.rpc = nil
-        self.address = nil
-    }
-    
+
     public init(rpc: RpcApi, address: String) {
-        self.rpc = rpc
-        self.address = address
+        contract.rpc = rpc
+        contract.address = address
     }
     
     /// The first of the two tokens of the pool, sorted by address
     /// - Returns: The token0 contract address **EthereumAddress**
     public func token0() async throws -> EthereumAddress {
-        try await runFunction("token0")
+        try await contract("token0").value as! EthereumAddress
     }
     
     /// The second of the two tokens of the pool, sorted by address
     /// - Returns: The token1 contract address **EthereumAddress**
     public func token1() async throws -> EthereumAddress {
-        try await runFunction("token1")
+        try await contract("token1").value as! EthereumAddress
     }
     
-    /// The pool's fee in hundredths of a bip, i.e. 1e-6
+    /// The pool's fee in hundredths of a BIP, i.e. 1e-6
     /// - Returns: The fee **BigUInt**
     public func fee() async throws -> BigUInt {
-        try await runFunction("fee")
+        try await contract("fee").value as! BigUInt
     }
     
     /// The contract that deployed the pool, which must adhere to the IUniswapV3Factory
     /// - Returns: The contract address **EthereumAddress**
     public func factory() async throws -> EthereumAddress {
-        try await runFunction("factory")
+        try await contract("factory").value as! EthereumAddress
     }
     
     public func liquidity() async throws -> BigUInt {
-        try await runFunction("liquidity")
+        try await contract("liquidity").value as! BigUInt
     }
     
-    public func slot0() async throws -> [ABIDecodable] {
-        try await runFunction(name: "slot0")
+    public func slot0() async throws -> SmartContractResult {
+        try await contract("slot0")
     }
     
 }

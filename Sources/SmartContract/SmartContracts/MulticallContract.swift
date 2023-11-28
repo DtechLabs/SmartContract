@@ -7,20 +7,18 @@
 import Foundation
 import BigInt
 
-public struct MulticallContract: SmartContract {
-    
-    public var rpc: RpcApi?
-    public var address: String?
+public struct MulticallContract {
+
     public let contract = GenericSmartContract.Multicall
-    
-    public init() {
-        self.rpc = nil
-        self.address = nil
-    }
-    
+    public let rpc: RpcApi
+    public let address: String
+
     public init(rpc: RpcApi, address: String) {
-        self.rpc = rpc
+        contract.rpc = rpc
+        contract.address = address
+        
         self.address = address
+        self.rpc = rpc
     }
     
     public struct Call: ABIEncodable {
@@ -83,8 +81,8 @@ public struct MulticallContract: SmartContract {
     
     @discardableResult
     public func aggregate(_ calls: inout [Call]) async throws -> (BigUInt, [Data]) {
-        let answer = try await call(aggregateAbi(calls).hexString)
-        let values = try MulticallContract().contract.function("aggregate").decodeOutput(answer)
+        let answer: String = try await rpc.call(to: address, data: aggregateAbi(calls).hexString)
+        let values = try contract.function("aggregate").decodeOutput(answer)
         let bytesArray = values[1] as! [Data]
         guard bytesArray.count == calls.count else {
             throw SmartContractError.invalidData(answer)
