@@ -10,31 +10,58 @@ import BigInt
 public struct SmartContractFunction {
     
     let abi: ABIFunction
-    var params: [Any] = []
     
     public var name: String { abi.name }
     public var inputs: [ABIFunction.Input] { abi.inputs }
     public var outputs: [ABIFunction.Output] { abi.outputs }
     
-    public  init(abi: ABIFunction, params: Any...) {
+    public  init(abi: ABIFunction) {
         self.abi = abi
-        self.params = params
     }
     
-    public func encode() throws -> String {
-        try signature()
+    public func encode() throws -> Data {
+        try signatureData()
+    }
+
+    public func encode(param: ABIEncodable) throws -> Data {
+        try encode(params: [param])
     }
     
-    public func encode(_ params: Any...) throws -> String {
-        let signature = try signature()
-        let data = try encodeParams(params)
-            .map { $0.toHexString()}
-            .joined()
-        return signature + data
+    public func encode(params: [ABIEncodable]) throws -> Data {
+        var encoded = try signatureData()
+        
+        guard params.count == inputs.count else {
+            throw SmartContractError.invalidInputsCount(params.count)
+        }
+        
+        if params.count == 0 {
+            return encoded
+        }
+        
+        if isFixedSize {
+            for (index, type) in inputs.enumerated() {
+                let data = try params[index].encode(as: type.type)
+                encoded += data
+            }
+        } else {
+            let items = zip(inputs.map { $0.type }, params).map { ($0, $1) }
+            encoded += try ABIEncoder.encodeDynamic(items)
+        }
+        return encoded
     }
     
     public var methodName: String {
-        let typeNames = inputs.map { $0.type.description }
+        let typeNames = inputs.map {
+            if case .tuple = $0.type {
+                guard let internalTypes = $0.components?.map({ $0.type }) else {
+                    assertionFailure("Should be structure definition")
+                    return ""
+                }
+                return "(" + internalTypes.map { $0.description }.joined(separator: ",") + ")[]"
+            } else {
+                return $0.type.description
+            }
+        }
         return name + "(" + typeNames.joined(separator: ",") + ")"
     }
     
@@ -45,75 +72,37 @@ public struct SmartContractFunction {
         return data.web3.keccak256.prefix(4).web3.hexString
     }
     
-    private func signatureData() throws -> Data {
+    var isFixedSize: Bool {
+        for input in inputs {
+            if !input.type.isFixedSize { return false }
+        }
+        return true
+    }
+    
+    func signatureData() throws -> Data {
         guard let data = methodName.data(using: .utf8) else {
             throw SmartContractError.invalidSignature
         }
         return data.web3.keccak256.prefix(4)
     }
     
-    private func encodeParams(_ params: Any...) throws -> [Data] {
-        guard params.count == inputs.count else {
-            throw SmartContractError.invalidInputsCount(params.count)
+    public func decodeOutput(_ rawAnswer: String) throws -> [ABIDecodable] {
+        guard let data = Data(hex: rawAnswer) else {
+            throw SmartContractError.invalidData(rawAnswer)
         }
-        var result: [Data] = []
-        for (index, type) in inputs.enumerated() {
-            result.append(try encode(params[index], of: type.type))
+        let types = outputs.map { $0.type }
+        let isDynamic = !types.filter { !$0.isFixedSize }.isEmpty
+        guard !data.isEmpty else {
+            throw SmartContractError.invalidData(rawAnswer)
         }
-        return result
+        return try isDynamic ? ABIDecoder.decodeDynamicOutput(types: types, data: data) : ABIDecoder.decodeOutput(types: types, data: data)
     }
     
-    private func encode(_ value: Any, of type: ABIRawType) throws -> Data {
-        if type.isSignedInteger {
-            if type.bitsCount > 64 {
-                guard let bigInteger = value as? BigInt else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            } else {
-                guard
-                    let intValue = value as? Int,
-                    let bigInteger = BigInt(exactly: intValue)
-                else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            }
-        } else if type.isUnsignedInteger {
-            if type.bitsCount > 64 {
-                guard let bigInteger = value as? BigUInt else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            } else {
-                guard
-                    let intValue = value as? UInt,
-                    let bigInteger = BigUInt(exactly: intValue)
-                else {
-                    throw SmartContractError.wrongValue(value, type)
-                }
-                return bigInteger.abiEncode(bits: type.bitsCount)
-            }
-        } else {
-            switch type {
-                case .bool:
-                    guard let boolValue = value as? Bool else {
-                        throw SmartContractError.wrongValue(value, type)
-                    }
-                    let intValue = boolValue ? 1 : 0
-                    return BigInt(intValue).abiEncode(bits: 256)
-                case .address:
-                    guard
-                        let addressValue = value as? String, addressValue.hasPrefix("0x"),
-                        let data = EthereumAddress(addressValue)?.abiData
-                    else {
-                        throw SmartContractError.wrongValue(value, type)
-                    }
-                    return data
-                default:
-                    throw SmartContractError.unsupportedType(type)
-            }
-        }
+    public func decodeResult(_ rawAnswer: String) throws -> SmartContractResult {
+        try SmartContractResult(
+            values: try decodeOutput(rawAnswer),
+            outputs: outputs
+        )
     }
 
     public func decode(_ rawAnswer: String) throws -> [ABIValue] {

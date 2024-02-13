@@ -13,14 +13,26 @@ public enum SmartContractError: Error {
     case invalidJson
     case invalidFunctionName(String)
     case invalidSignature
+    case invalidType
+    case invalidFunctionNameOrArguments
     
+    case invalidAddress
     case wrongValue(Any, ABIRawType)
     case unsupportedType(ABIRawType)
     case invalidInputsCount(Int)
     case rawTypeParser(String)
     case invalidData(String)
     case typeMismatch
+    /// Before call Contract function must be set RPC and address
     case contractOrRpcDidNotSet
+    /// When dynamically call SmartContract first argument must be function name
+    case missedFunctionName
+    /// When dynamically call SmartContract arguments count must be equal called function inputs
+    case wrongFunctionArgumentsCountOrType
+    /// SmartContract Function outputs count not same as in ABI json
+    case wrongFunctionOutputsCount
+    
+    case invalidBytesSize(Int)
 }
 
 func == (lhs: Error, rhs: Error) -> Bool {

@@ -11,4 +11,6 @@ enum ABICodableError: Error {
     
     case parseDataError
     case unrecognizedCase
+    
+    
 }

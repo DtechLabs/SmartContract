@@ -15,9 +15,9 @@ final class ABIRawTypeParserTests: XCTestCase {
         XCTAssertEqual(try ABIRawTypeParser.parse("uint256"), .uint(bits: 256))
         XCTAssertEqual(try ABIRawTypeParser.parse("address"), .address)
         XCTAssertEqual(try ABIRawTypeParser.parse("bool"), .bool)
-        XCTAssertEqual(try ABIRawTypeParser.parse("tuple[]"), .tuple)
-        XCTAssertEqual(try ABIRawTypeParser.parse("uint256[]"), .array(type: .uint(bits: 256)))
-        XCTAssertEqual(try ABIRawTypeParser.parse("address[]"), .array(type: .address))
+        XCTAssertEqual(try ABIRawTypeParser.parse("tuple[]"), .tuple(types: []))
+        XCTAssertEqual(try ABIRawTypeParser.parse("uint256[]"), .dynamicArray(ofType: .uint(bits: 256)))
+        XCTAssertEqual(try ABIRawTypeParser.parse("address[]"), .dynamicArray(ofType: .address))
         XCTAssertEqual(try ABIRawTypeParser.parse("address[4]"), .array(type: .address, length: 4))
         XCTAssertEqual(try ABIRawTypeParser.parse("uint160[2]"), .array(type: .uint(bits: 160), length: 2))
     }

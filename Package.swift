@@ -29,7 +29,10 @@ let package = Package(
                 .process("ABI/lp-pool-v2.json"),
                 .process("ABI/lp-pool-v3.json"),
                 .process("ABI/router-v2.json"),
-                .process("ABI/multicall.json")
+                .process("ABI/multicall.json"),
+                .process("ABI/quadrat-router.json"),
+                .process("ABI/quadrat-strategy.json"),
+                .process("ABI/hyper-dex-router.json")
             ]
         ),
         .testTarget(

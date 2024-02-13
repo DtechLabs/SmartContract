@@ -12,6 +12,7 @@ public enum ABIItemType: String, Codable {
     case event
     case fallback
     case constructor
+    case receive
 }
 
 public struct ABIFunction: Codable {
