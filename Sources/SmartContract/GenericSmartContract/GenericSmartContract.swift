@@ -9,13 +9,8 @@ public class GenericSmartContract {
     var functions: [ABIFunction] = []
     var events: [ABIEvent] = []
     
-    init(_ jsonFile: String) throws {
-        guard let path = Bundle.module.path(forResource: jsonFile, ofType: "json") else {
-            throw SmartContractError.jsonNotFound
-        }
-        
-        let data = try Data(contentsOf: URL(filePath: path))
-        guard let items = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+    init(abi: Data) throws {
+        guard let items = try JSONSerialization.jsonObject(with: abi) as? [[String: Any]] else {
             throw SmartContractError.invalidJson
         }
         
@@ -37,6 +32,23 @@ public class GenericSmartContract {
                     break
             }
         }
+    }
+    
+    convenience init(abiJson: String) throws {
+        guard let data = abiJson.data(using: .utf8) else {
+            throw SmartContractError.invalidJson
+        }
+        
+        try self.init(abi: data)
+    }
+    
+    convenience init(_ jsonFile: String) throws {
+        guard let path = Bundle.module.path(forResource: jsonFile, ofType: "json") else {
+            throw SmartContractError.jsonNotFound
+        }
+        
+        let data = try Data(contentsOf: URL(filePath: path))
+        try self.init(abi: data)
     }
     
     convenience init(_ jsonFile: String, rpc: RpcApi, address: String) throws {
@@ -92,6 +104,11 @@ public class GenericSmartContract {
         let rawAnswer: String = try await rpc.call(to: address, data: abi.hexString)
         let outputs = try function.decodeOutput(rawAnswer)
         return try SmartContractResult(values: outputs, outputs: function.outputs)
+    }
+    
+    // MARK: - Testing
+    public func hasFunction(_ name: String) -> Bool {
+        functions.first { $0.name == name } != nil
     }
     
     // MARK: Working with raw data

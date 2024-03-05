@@ -14,7 +14,7 @@ final class QuadratStrategyTests: XCTestCase {
     let strategy = "0xff0ea927edf3f83380c28d842d873da7d422025b"
     
     func testGetMintAmount() async throws {
-        let contract = QuadratStrategyContract(rpc: RPC.polygon, address: strategy)
+        let contract = QuadratStrategyContract(rpc: GenericRpcNode.polygon, address: strategy)
         let amount0 = BigUInt("2083746537199521078")
         let amount1 = BigUInt("1970407")
         let mintResult = try await contract.getMintAmounts(amount0Max: amount0, amount1Max: amount1)
