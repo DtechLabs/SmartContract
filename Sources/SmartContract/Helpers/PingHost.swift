@@ -4,7 +4,7 @@
 // Created by Yury Dryhin on 30.11.2023
 // email: yuri.drigin@icloud.com
 // LinkedIn: https://www.linkedin.com/in/dtechlabs/
-// Copyright © 2023  DTechLabs. All rights reserved.
+// Copyright © 2023 DTechLabs. All rights reserved.
 //
         
 import Foundation
@@ -14,6 +14,7 @@ enum PingError: Error {
 }
 
 struct Ping {
+    
     static func measure(to url: URL) async throws -> Int {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
@@ -28,4 +29,5 @@ struct Ping {
             throw PingError.pingFailure
         }
     }
+    
 }

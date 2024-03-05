@@ -17,43 +17,43 @@ public enum EIP: String, Codable {
     case none
 }
 
-struct ChainsData: Codable {
+public struct ChainsData: Codable {
     
-    struct Feature: Codable {
-        var name: EIP
+    public struct Feature: Codable {
+        public var name: EIP
     }
     
-    struct Currency: Codable {
-        let name: String
-        let symbol: String
-        let decimals: UInt8
+    public struct Currency: Codable {
+        public let name: String
+        public let symbol: String
+        public let decimals: UInt8
     }
     
-    struct ENS: Codable {
-        let registry: EthereumAddress
+    public struct ENS: Codable {
+        public let registry: EthereumAddress
     }
     
-    struct Explorer: Codable {
-        let name: String
-        let url: URL
-        let icon: String?
-        let standard: EIP
+    public struct Explorer: Codable {
+        public let name: String
+        public let url: URL
+        public let icon: String?
+        public let standard: EIP
     }
     
-    let name: String
-    let chain: String
-    let icon: String?
-    let rpc: [String]
-    let features: [Feature]?
-    let faucets: [String]
-    let nativeCurrency: Currency
-    let infoURL: String
-    let shortName: String
-    let chainId: UInt
-    let networkId: UInt
-    let slip44: UInt?
-    let ens: ENS?
-    let explorers: [Explorer]?
+    public let name: String
+    public let chain: String
+    public let icon: String?
+    public let rpc: [String]
+    public let features: [Feature]?
+    public let faucets: [String]
+    public let nativeCurrency: Currency
+    public let infoURL: String
+    public let shortName: String
+    public let chainId: UInt
+    public let networkId: UInt
+    public let slip44: UInt?
+    public let ens: ENS?
+    public let explorers: [Explorer]?
     
 }
  
@@ -66,9 +66,14 @@ enum ChainsDataStorageError: Error {
 
 struct ChainsDataStorage {
     
-    static var chains: [ChainsData] = []
+    public static var chains: [ChainsData] = []
     
-    init() {
+    static let storageFolderURL: URL =
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "SmartContracts")
+    
+    static let fileURL = storageFolderURL.appending(path: "chains.json")
+    
+    public init() {
             
         if let chains = try? Self.load() {
             Self.chains = chains
@@ -84,43 +89,26 @@ struct ChainsDataStorage {
         }
     }
     
-//    func getExplorer(for chainId: UInt) async throws -> ChainsData.Explorer {
-//        guard
-//            let chain = Self.chains.first(where: { $0.chainId == chainId }),
-//            let explorers = chain.explorers?.filter({ $0.standard == .EIP3091 }),
-//            !explorers.isEmpty
-//        else {
-//            throw ChainsDataStorageError.missedChainData(chainId)
-//        }
-//        
-//        let request = URLRequest(url: <#T##URL#>)
-//        for explorer in explorers {
-//            
-//        }
-//    }
-    
-    static func loadFromBundle() throws {
+    public static func loadFromBundle() throws {
         let path = Bundle.module.path(forResource: "chains", ofType: "json")!
         let json = try Data(contentsOf: URL(filePath: path))
         chains = try JSONDecoder().decode([ChainsData].self, from: json)
     }
     
     static func load() throws -> [ChainsData] {
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "SmartContracts").appending(path: "chains.json")
-        guard FileManager.default.fileExists(atPath: url.path()) else {
+        guard FileManager.default.fileExists(atPath: fileURL.path()) else {
             throw ChainsDataStorageError.savedDataNotFound
         }
-        let data = try Data(contentsOf: url)
+        let data = try Data(contentsOf: fileURL)
         return try JSONDecoder().decode([ChainsData].self, from: data)
     }
     
     static func save(_ chains: [ChainsData]) throws {
-        let url =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "SmartContracts")
-        if !FileManager.default.fileExists(atPath: url.path()) {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        if !FileManager.default.fileExists(atPath: storageFolderURL.path()) {
+            try FileManager.default.createDirectory(at: storageFolderURL, withIntermediateDirectories: true)
         }
         let data = try JSONEncoder().encode(chains)
-        try data.write(to: url.appending(path: "chains.json"))
+        try data.write(to: fileURL)
     }
     
 }
