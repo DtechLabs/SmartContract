@@ -37,9 +37,9 @@ public struct SmartContractAbiLoader {
     
     let explorerURL: URLComponents
     
-    public init(explorer: URL) throws {
-        guard 
-            var components = URLComponents(url: explorer, resolvingAgainstBaseURL: false),
+    public init(explorerUrl: URL) throws {
+        guard
+            var components = URLComponents(url: explorerUrl, resolvingAgainstBaseURL: false),
             let host = components.host
         else {
             throw SmartContractAbiLoaderError.errorGenerateExplorerURL

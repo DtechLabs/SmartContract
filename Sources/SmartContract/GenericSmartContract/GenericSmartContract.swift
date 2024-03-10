@@ -82,7 +82,7 @@ public class GenericSmartContract {
         }
         
         let abi = try function.encode(params: params)
-        let result: String = try await rpc.call(to: address, data: abi.hexString)
+        let result: String = try await rpc.call(to: address, data: abi)
         let outputs = try function.decodeOutput(result)
         return try SmartContractResult(values: outputs, outputs: function.outputs)
     }
@@ -101,14 +101,18 @@ public class GenericSmartContract {
         
         let function = try function(args[0].key)
         let abi = try function.encode(params: args[0].value)
-        let rawAnswer: String = try await rpc.call(to: address, data: abi.hexString)
+        let rawAnswer: String = try await rpc.call(to: address, data: abi)
         let outputs = try function.decodeOutput(rawAnswer)
         return try SmartContractResult(values: outputs, outputs: function.outputs)
     }
     
     // MARK: - Testing
-    public func hasFunction(_ name: String) -> Bool {
+    public func hasFunction(withName name: String) -> Bool {
         functions.first { $0.name == name } != nil
+    }
+    
+    public func hasFunction(withSignature signature: String) -> Bool {
+        false
     }
     
     // MARK: Working with raw data
@@ -116,8 +120,8 @@ public class GenericSmartContract {
         try function(functionName).encode()
     }
     
-    public func abi(_ functionName: String, params: ABIEncodable...) throws -> String {
-        try function(functionName).encode(params: params).hexString
+    public func abi(_ functionName: String, params: ABIEncodable...) throws -> Data {
+        try function(functionName).encode(params: params)
     }
     
     public func decode<T>(_ functionName: String, data: String) throws -> T {

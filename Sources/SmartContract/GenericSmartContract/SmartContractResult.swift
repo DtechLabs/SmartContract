@@ -1,8 +1,9 @@
 //
 //  SmartContractResult.swift
-//  
+//  SmartContract Framework
 //
-//  Created by Yuri on 16.08.2023.
+//  Created by Yury Dryhin aka DTechLabs on 16.08.2023.
+//  email: yuri.drigin@icloud.com; LinkedIn: https://www.linkedin.com/in/dtechlabs/
 //
 
 import Foundation

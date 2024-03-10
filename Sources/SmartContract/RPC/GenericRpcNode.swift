@@ -17,18 +17,18 @@ public class GenericRpcNode: RpcApi {
         self.url = url
     }
     
-    public func call<Result>(to: String, data: String) async throws -> Result where Result : Decodable, Result : Encodable {
+    public func call<Result>(to: String, data: Data) async throws -> Result where Result : Decodable, Result : Encodable {
         let request = JsonRpcRequest(
             method: "eth_call",
-            params: ["to": to, "data": data]
+            params: ["to": to, "data": data.hexString]
         )
         return try await call(request)
     }
     
-    public func call(to: String, data: String) async throws {
+    public func call(to: String, data: Data) async throws {
         let callData = JsonRpcRequest(
             method: "eth_call",
-            params: ["to": to, "data": data]
+            params: ["to": to, "data": data.hexString]
         )
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

@@ -16,7 +16,7 @@ public enum RpcApiError: Error {
 
 public protocol RpcApi {
     
-    func call<Result: Codable>(to: String, data: String) async throws -> Result
-    func call(to: String, data: String) async throws
+    func call<Result: Codable>(to: String, data: Data) async throws -> Result
+    func call(to: String, data: Data) async throws
     
 }

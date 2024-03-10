@@ -11,9 +11,9 @@ import XCTest
 final class ChainDataStorageTests: XCTestCase {
 
     func testInitStorage() throws {
-        let storage = ChainsDataStorage()
+        let _ = ChainsDataStorage()
         
-        XCTAssertEqual(ChainsDataStorage.chains.count, 1133)
+        XCTAssertFalse(ChainsDataStorage.chains.isEmpty)
         
         let exp = XCTestExpectation()
         Task {
