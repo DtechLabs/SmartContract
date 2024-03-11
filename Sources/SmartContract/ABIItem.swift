@@ -38,6 +38,9 @@ public struct ABIFunction: Codable {
     public let stateMutability: String
     public let type: ABIItemType
     
+    public var signature: String {
+        [name, "(", inputs.map { $0.type.description}.joined(separator: ","), ")"].joined()
+    }
 }
 
 public struct ABIEvent: Codable {

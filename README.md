@@ -32,7 +32,7 @@ let abi: String = .... // String with ABI Json data
 let contract1 = try GenericSmartContract(abiJson: abi) 
 
 // or
-let abiData: Data = ... // Data with utf8 string of ABI 
+let abiData: Data = ... // Data with UTF8 string of ABI 
 let contract2 = try GenericSmartContract(abi: abiData) 
 ```
 

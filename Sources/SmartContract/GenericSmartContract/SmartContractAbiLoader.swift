@@ -1,16 +1,12 @@
 //
 // SmartContractAbiLoader.swift
-// 
+// SmartContract Framework
 //
-// Using Swift 5.0
-// Created by Yury Dryhin on 30.11.2023
-// email: yuri.drigin@icloud.com
-// LinkedIn: https://www.linkedin.com/in/dtechlabs/
-// Copyright © 2023  DTechLabs. All rights reserved.
+// Created by Yury Dryhin aka DTechLabs on 16.08.2023.
+// email: yuri.drigin@icloud.com; LinkedIn: https://www.linkedin.com/in/dtechlabs/
 //
         
 import Foundation
-
 
 public enum SmartContractAbiLoaderError: Error {
 
@@ -23,8 +19,6 @@ public enum SmartContractAbiLoaderError: Error {
     
 }
 
-
-
 struct AbiResponse: Decodable {
     
     let status: String
@@ -33,10 +27,34 @@ struct AbiResponse: Decodable {
     
 }
 
+/// The SmartContractAbiLoader struct is a utility designed to load the ABI (Application Binary Interface) of a smart contract from a blockchain explorer.
+/// It simplifies the process of fetching the ABI for a given smart contract address by automating the request to a compatible blockchain explorer API.
+///
+/// ## Initialization
+/// The struct can be initialized using two different methods:
+///
+/// ### URL Initialization:
+/// Initializes the loader with a specific blockchain explorer URL.
+/// ```swift
+/// public init(explorerUrl: URL) throws
+/// ```
+///
+/// ### ChainsData.Explorer Initialization:
+/// ```swift
+/// public init(_ explorer: ChainsData.Explorer) throws
+/// ```
+/// Both initializers modify the provided URL to ensure it targets the API endpoint for ABI retrieval, adding necessary query parameters to facilitate the request.
+///
+/// ## Error Handling
+/// The struct defines and uses specific errors ``SmartContractAbiLoaderError`` to handle failures during the initialization and ABI loading processes, 
+/// including errors related to URL generation, API responses, and decoding issues.
 public struct SmartContractAbiLoader {
     
     let explorerURL: URLComponents
     
+    /// Initializes the loader with a specific blockchain explorer URL.
+    /// - Parameter explorerUrl: The complete URL of the blockchain explorer.
+    /// - Throws: SmartContractAbiLoaderError.errorGenerateExplorerURL if the URL cannot be properly formatted into the required API endpoint.
     public init(explorerUrl: URL) throws {
         guard
             var components = URLComponents(url: explorerUrl, resolvingAgainstBaseURL: false),
@@ -61,6 +79,10 @@ public struct SmartContractAbiLoader {
         self.explorerURL = components
     }
         
+    /// Initializes the loader with a ``ChainsData.Explorer`` instance, which contains the URL and standard information of the blockchain explorer.
+    /// - Parameters:
+    ///     - explorer: A ChainsData.Explorer object representing the blockchain explorer.
+    /// - Throws: SmartContractAbiLoaderError.unsupportedEIP3091 if the explorer does not conform to the EIP-3091 standard.
     public init(_ explorer: ChainsData.Explorer) throws {
         guard
             explorer.standard == .EIP3091,
@@ -79,6 +101,12 @@ public struct SmartContractAbiLoader {
         self.explorerURL = urlComponents
     }
     
+    /// Asynchronously fetches the ABI for a smart contract at a specified address.
+    /// - Parameters:
+    ///     - address: The smart contract address for which the ABI is requested.
+    /// - Returns: The ABI of the smart contract as a String.
+    ///
+    /// - Throws: ``SmartContractAbiLoaderError``
     public func loadAbi(address: String) async throws -> String {
         var components = explorerURL
         components.queryItems?.append(URLQueryItem(name: "address", value: address))

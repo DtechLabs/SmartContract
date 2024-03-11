@@ -1,7 +1,24 @@
+//
+//  GenericSmartContract.swift
+//  SmartContract Framework
+//
+//  Created by Yury Dryhin aka DTechLabs on 16.08.2023.
+//  email: yuri.drigin@icloud.com; LinkedIn: https://www.linkedin.com/in/dtechlabs/
+
 import Foundation
 
-@dynamicCallable
-public class GenericSmartContract {
+/// The `GenericSmartContract` class serves as a dynamic interface for interacting with smart contracts on the Ethereum blockchain.
+/// It enables the encoding and decoding of contract calls and responses using the contract's **ABI** (Application Binary Interface).
+///
+/// ## Initialization
+/// ### From ABI Data:
+///  ```swift
+///  init(abi: Data) throws
+///  ```
+///
+///  ## Usage
+///
+@dynamicCallable public class GenericSmartContract {
 
     public var address: String?
     public var rpc: RpcApi?
@@ -9,6 +26,8 @@ public class GenericSmartContract {
     var functions: [ABIFunction] = []
     var events: [ABIEvent] = []
     
+    /// Initializes the contract interface with ABI data.
+    /// - Parameter abi: ABI of the smart contract in Data format.
     init(abi: Data) throws {
         guard let items = try JSONSerialization.jsonObject(with: abi) as? [[String: Any]] else {
             throw SmartContractError.invalidJson
@@ -58,6 +77,9 @@ public class GenericSmartContract {
         self.rpc = rpc
     }
     
+    ///  Retrieves a specific smart contract function by name.
+    /// - Parameter name: The name of the function.
+    /// - Returns: A ``SmartContractFunction`` instance representing the function.
     public func function(_ name: String) throws -> SmartContractFunction {
         guard let function = functions.first(where: { $0.name == name }) else {
             throw SmartContractError.invalidFunctionName(name)
@@ -106,16 +128,21 @@ public class GenericSmartContract {
         return try SmartContractResult(values: outputs, outputs: function.outputs)
     }
     
-    // MARK: - Testing
+    /// Checks if the ABI includes a function with the specified name.
+    /// - Parameter name: The name of the function.
+    /// - Returns: **true** if the function exists, otherwise **false**.
     public func hasFunction(withName name: String) -> Bool {
         functions.first { $0.name == name } != nil
     }
     
+    /// Checks if the ABI includes a function with the specified signature.
+    /// - Parameter signature: The signature of the function.
+    /// - Returns: **true** if the function exists, otherwise **false**.
     public func hasFunction(withSignature signature: String) -> Bool {
-        false
+        functions.first { $0.signature == signature } != nil
     }
     
-    // MARK: Working with raw data
+    /// Encodes the ABI for a specific function without arguments.
     public func abi(_ functionName: String) throws -> Data {
         try function(functionName).encode()
     }
