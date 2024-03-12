@@ -1,3 +1,5 @@
+![Banner](SmartContractLibrary.png)
+
 # SmartContract
 
 > **NOTE** The library may contain some artefact code that will be cleared in the near future.
