@@ -8,13 +8,25 @@
         
 import Foundation
 
+/// The `SmartContractAbiLoaderError` enumeration defines errors specific to the process of loading 
+/// a smart contract's ABI (Application Binary Interface) from an explorer or an API.
+/// This enum plays a crucial role in handling and reporting issues that might occur while fetching and parsing ABI data,
+/// which is essential for interacting with smart contracts on blockchain networks like Ethereum.
 public enum SmartContractAbiLoaderError: Error {
-
-    /// Explorer doesn't support EIP3091
-    case unsupportedEIP3091
     
+    /// Indicates that the blockchain explorer does not support the EIP-3091 standard,
+    /// which provides a standard way to represent addresses and transactions on blockchains within various applications.
+    case unsupportedEIP3091
+    /// Signals an issue in generating the correct URL for the blockchain explorer.
+    /// This could be due to incorrect formatting, unsupported parameters, or other issues related to URL construction.
     case errorGenerateExplorerURL
+    /// Represents an error that occurred during the API call to fetch the ABI.
+    /// The **Int?** parameter allows for optional inclusion of the HTTP status code, providing insight into the nature of the API failure (e.g., 404 for not found, 500 for server errors).
+    /// The **Data** parameter contains the response body, which might include error messages or details provided by the explorer's API.
     case apiError(Int?, Data)
+    /// Occurs when there's a failure to decode the ABI data fetched from the explorer.
+    /// The **Data** parameter contains the raw response that failed to decode,
+    /// and the Error parameter details the specific decoding error encountered, such as issues with the JSON structure or unexpected data types.
     case decodingError(Data, Error)
     
 }
