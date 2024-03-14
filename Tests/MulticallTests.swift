@@ -74,10 +74,10 @@ final class MulticallTests: XCTestCase {
             try MulticallContract.call(erc20.contract.function("symbol"), address: wrappedETH.address)
         ]
         
-        _ = try await multicall.aggregate(&calls)
+        try await multicall.aggregate(&calls)
         
         let name: String = try calls[0].getResult("")
-        let symbol: String = try calls[1].getResult(by: 0)
+        let symbol: String = try calls[1].getResult(0)
         XCTAssertEqual(name, "Wrapped Ether")
         XCTAssertEqual(symbol, "WETH")
     }

@@ -4,7 +4,7 @@
 // Created by Yury Dryhin on 30.11.2023
 // email: yuri.drigin@icloud.com
 // LinkedIn: https://www.linkedin.com/in/dtechlabs/
-// Copyright © 2023 DTechLabs. All rights reserved.
+// Copyright © 2023 Yury Dryhin (DTechLabs). All rights reserved.
 //
         
 import Foundation

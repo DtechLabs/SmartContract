@@ -1,9 +1,11 @@
 //
 //  ABIRawType.swift
-//  
+//  SmartContract Framework
 //
-//  Created by Yuri on 31.05.2023.
+//  Created by Yury Dryhin aka DTechLabs on 31.05.2023.
+//  email: yuri.drigin@icloud.com; LinkedIn: https://www.linkedin.com/in/dtechlabs/
 //
+
 import Foundation
 import BigInt
 

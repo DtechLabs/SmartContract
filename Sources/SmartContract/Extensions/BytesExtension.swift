@@ -9,6 +9,7 @@ import Foundation
 import BigInt
 
 public extension Web3Extensions where Base == BigUInt {
+    
     var bytes: [UInt8] {
         let data = base.magnitude.serialize()
         let bytes = data.web3.bytes
@@ -24,6 +25,7 @@ public extension Web3Extensions where Base == BigUInt {
 }
 
 extension BigInt {
+    
     init(twosComplement data: Data) {
         guard data.count > 1 else {
             self.init(0)
@@ -49,6 +51,7 @@ extension BigInt {
 }
 
 public extension Web3Extensions where Base == BigInt {
+    
     var bytes: [UInt8] {
         let data: Data
         if base.sign == .plus {
@@ -74,6 +77,7 @@ public extension Web3Extensions where Base == BigInt {
 }
 
 public extension Data {
+    
     static func ^ (lhs: Data, rhs: Data) -> Data {
         let bytes = zip(lhs.web3.bytes, rhs.web3.bytes).map { lhsByte, rhsByte in
             return lhsByte ^ rhsByte
@@ -84,6 +88,7 @@ public extension Data {
 }
 
 public extension Web3Extensions where Base == Data {
+    
     var bytes: [UInt8] {
         return Array(base)
     }
@@ -102,12 +107,15 @@ public extension Web3Extensions where Base == Data {
 }
 
 public extension String {
+    
     init(hexFromBytes bytes: [UInt8]) {
         self.init("0x" + bytes.map() { String(format: "%02x", $0) }.reduce("", +))
     }
+    
 }
 
 public extension Web3Extensions where Base == String {
+    
     var bytes: [UInt8] {
         return [UInt8](base.utf8)
     }
@@ -121,4 +129,5 @@ public extension Web3Extensions where Base == String {
             return nil
         }
     }
+    
 }

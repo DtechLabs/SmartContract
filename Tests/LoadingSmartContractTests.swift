@@ -2,7 +2,7 @@
 //  LoadingSmartContractTests.swift
 //  
 //
-//  Created by Yuri on 05.03.2024.
+//  Created by Yury Dryhin on 05.03.2024.
 //
 import XCTest
 @testable import SmartContract
@@ -37,9 +37,9 @@ final class LoadingSmartContractTests: XCTestCase {
         XCTAssertFalse(abi.isEmpty)
  
         let contract = try GenericSmartContract(abiJson: abi)
-        XCTAssertTrue(contract.hasFunction("name"))
-        XCTAssertTrue(contract.hasFunction("decimals"))
-        XCTAssertTrue(contract.hasFunction("symbol"))
+        XCTAssertTrue(contract.hasFunction(withName: "name"))
+        XCTAssertTrue(contract.hasFunction(withName: "decimals"))
+        XCTAssertTrue(contract.hasFunction(withName: "symbol"))
         
         let explorerPolygon = ChainsDataStorage.chains.first { $0.chainId == 137 }!.explorers!.first { $0.standard == .EIP3091 }!
         let loaderPolygon = try SmartContractAbiLoader(explorerPolygon)
@@ -48,9 +48,9 @@ final class LoadingSmartContractTests: XCTestCase {
         XCTAssertFalse(abiPolygon.isEmpty)
         
         let contractPolygon = try GenericSmartContract(abiJson: abiPolygon)
-        XCTAssertTrue(contractPolygon.hasFunction("name"))
-        XCTAssertTrue(contractPolygon.hasFunction("decimals"))
-        XCTAssertTrue(contractPolygon.hasFunction("symbol"))
+        XCTAssertTrue(contractPolygon.hasFunction(withName: "name"))
+        XCTAssertTrue(contractPolygon.hasFunction(withName: "decimals"))
+        XCTAssertTrue(contractPolygon.hasFunction(withName: "symbol"))
         
     }
     
