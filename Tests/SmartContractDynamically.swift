@@ -15,7 +15,7 @@ final class SmartContractDynamically: XCTestCase {
     func testDynamicResult() async throws {
         let erc20 = GenericSmartContract.ERC20
         erc20.address = wrappedETH
-        erc20.rpc = RPC(url: rpcURL)
+        erc20.rpc = GenericRpcNode.ethereum
         
         let result = try await erc20("name")
         XCTAssertEqual(result.values.count, 1)

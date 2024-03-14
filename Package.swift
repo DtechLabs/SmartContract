@@ -32,7 +32,8 @@ let package = Package(
                 .process("ABI/multicall.json"),
                 .process("ABI/quadrat-router.json"),
                 .process("ABI/quadrat-strategy.json"),
-                .process("ABI/hyper-dex-router.json")
+                .process("ABI/hyper-dex-router.json"),
+                .process("InitialData/chains.json")
             ]
         ),
         .testTarget(

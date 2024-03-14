@@ -45,7 +45,7 @@ public struct MulticallContract {
             return value
         }
         
-        public func getResult<T: ABIDecodable>(by index: Int = 0) throws -> T  {
+        public func getResult<T: ABIDecodable>(_ index: Int = 0) throws -> T  {
             guard result.indices.contains(index) else {
                 throw ABIDecoderError.resultNotFound(index)
             }
@@ -81,7 +81,7 @@ public struct MulticallContract {
     
     @discardableResult
     public func aggregate(_ calls: inout [Call]) async throws -> (BigUInt, [Data]) {
-        let answer: String = try await rpc.call(to: address, data: aggregateAbi(calls).hexString)
+        let answer: String = try await rpc.call(to: address, data: aggregateAbi(calls))
         let values = try contract.function("aggregate").decodeOutput(answer)
         let bytesArray = values[1] as! [Data]
         guard bytesArray.count == calls.count else {
